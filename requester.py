@@ -2,6 +2,7 @@ __author__ = 'Almenon'
 
 import time
 from urllib.request import urlopen
+from urllib.parse import urlencode #todo use this to make url
 from urllib import error
 from json import loads
 from re import compile,search
@@ -14,6 +15,7 @@ lastwordfinder = "\w$" # find last word on specified line
 regex = compile(r"season +(\d)" # season X
         r"(?: +episode +(\d))?") # episode X (optional)
 # in future find season or episode (if show is only 1 season people might forgo the season)
+
 
 # rename function
 def input(request):

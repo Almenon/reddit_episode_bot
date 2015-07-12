@@ -6,7 +6,7 @@ import praw
 # import OAuth2Util
     # library that makes it easier to use OAuth
     # https://github.com/SmBe19/praw-OAuth2Util
-    # for now just use login
+    # todo: use OAuth instead of login
 from time import sleep
 from requester import input
 # import webbrowser # only needed if i use standard Oauth
@@ -27,14 +27,10 @@ number_responses = 0
 
 while(True):
 
-    # use username mentions
-    # https://www.reddit.com/r/redditdev/comments/2rnzkd
-    # pass comment to requester
-    # reply
-    # already_replied.push(comment id)
     mentions = r.get_mentions()
-    # to do: find a way to distinguish between old and new replies
+
     for mention in mentions:
+        # todo: find a way to distinguish between old and new replies
         if mention.new is False: # has_fetched or new
             break
         answer = input(str(mention))
@@ -53,6 +49,7 @@ while(True):
     # if time() > 3300 + last_time:
     #   o.refresh()
 
+    # todo: error handling
     # should send message to /u/Almenon if an error occurs
     # r.send_message("Almenon", "Episode bot error", "error message")
     logging.debug("sleeping for 30 seconds")
