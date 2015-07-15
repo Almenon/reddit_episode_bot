@@ -2,99 +2,73 @@ __author__ = 'Almenon'
 
 #http://praw.readthedocs.org/en/latest/pages/getting_started.html
 
+
 import praw
-# import OAuth2Util
-    # library that makes it easier to use OAuth
-    # https://github.com/SmBe19/praw-OAuth2Util
-    # todo: use OAuth instead of login
 from time import sleep
-from requester import input
-# import webbrowser # only needed if i use standard Oauth
+from requester import get_info
 import logging
 logging.basicConfig(level="DEBUG")
     # set level to INFO to get rid of debug messages
 from re import compile, search
 
+
 # SETUP
 # string should not contain keyword bot
-user_agent = "Python script for automated replies when my username is tagged. alpha v.1 by Almenon"
+user_agent = "Python script for automatic replies with information when my username is tagged with keywords. alpha v.2 by Almenon"
 r = praw.Reddit(user_agent=user_agent)
-#o = OAuth2Util.OAuth2Util(r)
 
-r.login('Almenon','password goes here',disable_warning=True) # login will be deprecated soon!
+
+password = open("password.txt").read()
+    # password in text file so it's not availible in public repository
+r.login('the_episode_bot', password, disable_warning=True)
+#todo: use Oauth instead of login
+# must be done by this year because login will be deprecated
+
 already_replied = [] # comments already responded too
-number_responses = 0
+bot_disclaimer = "------\n" \
+                 "^^I'm ^^a ^^bot ^^that ^^gives ^^info ^^on ^^shows. " \
+                 "^^| ^^[message](http://www.reddit.com/message/compose?to=the_episode_bot) ^^me ^^if ^^there's ^^an ^^issue. " \
+                 "^^| ^^[about](https://github.com/Almenon/reddit_episode_bot)"
+# formatting for bot_disclaimer thanks to wikipediacitationbot
 
 while(True):
 
-    mentions = r.get_mentions()
+    messages = r.get_unread()
 
-    for mention in mentions:
-        # todo: find a way to distinguish between old and new replies
-        if mention.new is False: # has_fetched or new
-            break
-        answer = input(str(mention))
+    for message in messages:
+        # todo: only comment on allowed subreddits
+        # https://www.reddit.com/r/Bottiquette/wiki/robots_txt_json
+        # if message.subreddit is in banned subreddits:
+        #   message person
+        answer = get_info(str(message.body))
         if answer is not None:
-            mention.reply(answer)
-        already_replied.append(mention.id)
-        logging.debug(vars(mention))
+            if answer[0:3] != "400" and answer[0:3] != "404":
+                answer += bot_disclaimer
+                try:
+                    message.reply(answer)
+                except Exception as e:
+                    logging.error(str(e))
+                    # possibly 403 error: sub is private or bot is banned from it
+                sleep(2)
+                message.mark_as_read()
+            else:
+                logging.warning("database is offline!")
+                message.reply("I can't process your request right now, the database is offline")
+                r.send_message("Almenon", "episodebot warning", answer)
+        else:
+            r.send_message("Almenon", "bad request to episodebot", str(message))
+        message.mark_as_read()
 
-    # for use once episodebot has it's own account
-    # unread_messages = r.get_unread()
-    # for message in unread_messages:
-    #     r.send_message("Almenon", "episodebot", message)
-
-    # # once 55 min has passed update hourly access token
-    # last_time = time()
-    # if time() > 3300 + last_time:
-    #   o.refresh()
-
-    # todo: error handling
+    # todo: error handling if reddit is offline
     # should send message to /u/Almenon if an error occurs
     # r.send_message("Almenon", "Episode bot error", "error message")
     logging.debug("sleeping for 30 seconds")
     sleep(30) # limit is 2 seconds
 
-
-# use OAuth to authenticate bot
+# LINKS:
 # https://github.com/reddit/reddit/wiki/OAuth2
 # http://praw.readthedocs.org/en/latest/pages/oauth.html
 # use pprint for debugging pprint(vars(submission))
 # reddit bots & utilities: https://github.com/voussoir/reddit
 # auto-wiki bot https://github.com/acini/autowikibot-py
 # can use https://www.reddit.com/r/FreeKarma/ to get free karma if needed
-
-# OLD CODE
-"""
-
-r.set_oauth_app_info(client_id='',
-                    client_secret='',
-                     redirect_uri='')
-url = r.get_authorize_url("almenon51", "identity privatemessages submit", refreshable=True)
-# edit read history flair save are some more permissions i might need
-webbrowser.open(url)
-sleep(30) # stop program and update below line
-access_information = r.get_access_information('') # only lasts 60 min
-user = r.get_me()
-logging.debug(user.name, user.link_karma)
-r.login('Almenon','password') # login will be deprecated soon!
-
-    last_time = time()
-    if time() > 3300 + last_time:
-        access_information = r.refresh_access_information(access_information['refresh_token'])
-
-subreddit = r.get_subreddit('bottest') #'subreddit1 + subreddit2' if multiple
-subreddit_comments = subreddit.get_comments()
-# subreddit_comments is a generator
-logging.debug(subreddit_comments)
-
-for submission in subreddit.get_hot(limit=10):
-    flat_comments = praw.helpers.flatten_tree(submission.comments)
-    for comment in flat_comments:
-        if comment.body.find("episodebot") and comment.id not in already_replied
-            comment.reply("message")
-            already_replied.add(comment.id)
-            number_responses = number_responses + 1
-    #user_name = "Almenon"
-#user = r.get_redditor(user_name)
-"""
