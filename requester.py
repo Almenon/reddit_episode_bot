@@ -9,12 +9,12 @@ from re import compile,search
 import logging
 logging.basicConfig(level="DEBUG") # set level to INFO to get rid of debug messages
 
+error_msg = "None"
 base = "http://www.omdbapi.com/?"
-show = "Game of Thrones"
-regex = compile(r"(?:\"(.+)\")? +" # "title" (optional)
-                r"season +(\d+)"    # season X
-                r" *,? +"           # space with optional comma
-                r"episode +(\d+)")  # episode X
+regex = compile(r"(?:\"([^\"]+)\"[ ,]*)??"  # "show title" (optional)
+                r"(s|e)[a-s]*\ *?(\d+)[ ,]*" # season X ,
+                r"(?:s|e)[a-s]*\ *?(\d+)")
+
 
 # many other possible string inputs i could check for:
 """
@@ -27,45 +27,57 @@ regex = compile(r"(?:\"(.+)\")? +" # "title" (optional)
    X best episodes (sort by review and return X episodes)
 """
 
-# todo: rename function
-def get_info(request):
-    """
-    returns title, plot, rating, and year
-    request should be a string in the form of season X episode X
-    """
-    logging.debug(request)
+def parse(request):
+    logging.debug("request: " + request)
     # PARSE REQUEST
     request = request.lower()
     show_season_episode = search(regex,request)
     if show_season_episode is None:
-        logging.info("request does not contain correct format")
+        error_msg = "request does not contain correct format"
+        logging.info(error_msg)
         return None
-    keyrequest = None # possible future feature: return only a certain key/value pair
+    #keyrequest = None # possible future feature: return only a certain key/value pair
     if show_season_episode.group(1) is not None: show = show_season_episode.group(1)
-    season = show_season_episode.group(2)
-    episode = show_season_episode.group(3)
-    post_request = urlencode({'t':show, 'Season':season, 'Episode':episode})
+    if show_season_episode.group(2) is 'e': # format is episode season
+        episode = show_season_episode.group(3)
+        season = show_season_episode.group(4)
+    else: # format is season episode
+        season = show_season_episode.group(3)
+        episode = show_season_episode.group(4)
+
+def get_info(show='Game of thrones', season=1, episode=1):
+    """
+    returns title, plot, rating, and year
+    """
+    global error_msg
+
+    post_request = urlencode([('t',show), ('Season',season), ('Episode',episode)])
     logging.info("Parsed request is " + base + post_request)
 
     # get data from omdbapi.com
     try:
         data = urlopen(base + post_request)
     except error.HTTPError as e:
-        if e.code == 404: return "404 error: site not found"
-        if e.code == 400: return "400 error: invalid request"
-        else: print("error when opening site: " + e.code)
-    logging.debug(data)
+        if e.code == 400:
+            error_msg = "There was an error when getting data from omdbapi.  Possibly the site is offline: " + \
+                        "400 error: invalid GET request"
+            logging.warning(error_msg)
+        else:
+            error_msg = "There was an error when getting data from omdbapi.  Possibly the site is offline: " + e.code
+            logging.warning(error_msg)
+        return None
+
 
     # PARSE JSON & return requested data
     # thanks to http://stackoverflow.com/questions/6541767
     jsonData = data.read().decode('utf-8')
     logging.debug(jsonData)
     parsedJson = loads(jsonData)
-    logging.info(parsedJson)
-    # catch index errors or verify incoming data beforehand
-    # select a single attribute if specified
-    if keyrequest is not None:
-        print(keyrequest +": " + parsedJson[keyrequest])
+    logging.info("JSON: " + str(parsedJson))
+    if len(parsedJson) == 2: # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
+        error_msg = post_request + " returns error.  That episode or show is not in the database"
+        logging.info(error_msg)
+        return None
     requestedInfo = ""
     for key in ('Title','Plot','imdbRating', "Year"):
         requestedInfo += key + ": " + parsedJson[key] + "\n\n"
@@ -77,7 +89,7 @@ def printall(dictionary):
     for key in dictionary:
         print(key + " : " + dictionary[key])
 
-# output = get_info("alright let's try this again. calling /u/the_episode_bot\n\n\"Buffy the vampire slayer\" season 1 episode 2")
+# output = get_info(" test string ")
 # print(output)
 
 """"

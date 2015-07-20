@@ -5,7 +5,7 @@ __author__ = 'Almenon'
 
 import praw
 from time import sleep
-from requester import get_info
+import requester
 import logging
 logging.basicConfig(level="DEBUG")
     # set level to INFO to get rid of debug messages
@@ -43,40 +43,45 @@ while(True):
         continue
 
     for message in messages:
+        sleep(2)
         if message.subreddit in restricted_subreddits:
             r.send_message(message.author,"episodebot could not reply",
                            "episodebot can't reply to a comment in a restricted subreddit")
             continue
-        answer = get_info(str(message.body))
+        answer = requester.get_info(str(message.body))
         # todo: search reddit for discussion threads
         if answer is not None:
-            if answer[0:3] != "400" and answer[0:3] != "404":
-                answer += bot_disclaimer
-                try:
-                    message.reply(answer)
-                except Exception as e:
-                    logging.warning(str(e))
-                    # possibly 403 error: sub is private or bot is banned from it
-                sleep(2)
-                message.mark_as_read()
-            else:
-                logging.warning("database is offline!")
-                message.reply("I can't process your request right now, the database is offline")
-                r.send_message("Almenon", "episodebot warning", answer)
+            answer += bot_disclaimer
+            try:
+                message.reply(answer)
+            except Exception as e:
+                logging.warning(str(e))
+                # possibly 403 error: sub is private or bot is banned from it
         else:
-            r.send_message("Almenon", "bad request to episodebot", str(message))
+            # send error message to me and commenter
+            r.send_message(message.author, "Episodebot could not reply", "Sorry, " + requester.error_msg)
+            r.send_message("Almenon", "epiosdebot error", str(message) + '\n\n' + requester.error_msg)
+
         message.mark_as_read()
 
-    # todo: error handling if reddit is offline
-    # should send message to /u/Almenon if an error occurs
-    # r.send_message("Almenon", "Episode bot error", "error message")
-    logging.debug("sleeping for 30 seconds")
+    logging.info("sleeping for 30 seconds")
     sleep(30) # limit is 2 seconds
 
-# LINKS:
-# https://github.com/reddit/reddit/wiki/OAuth2
-# http://praw.readthedocs.org/en/latest/pages/oauth.html
-# use pprint for debugging pprint(vars(submission))
-# reddit bots & utilities: https://github.com/voussoir/reddit
-# auto-wiki bot https://github.com/acini/autowikibot-py
-# can use https://www.reddit.com/r/FreeKarma/ to get free karma if needed
+"""
+LINKS AND NOTES:
+for parsing subreddit titles:
+    ex: Gameofthrones
+    determining where spaces are is a problem
+    perhaps I could tell based on capitalization?
+    or look in sidebar where hopefully it is mentioned w/ spaces?
+perhaps instead of getting list of TV subreddits I could use my own list of TV shows and search for related subreddits?
+https://www.reddit.com/r/television
+http://tv-subreddits.wikidot.com/ (TV subreddits masterlist, out of date :(
+https://www.reddit.com/r/TVSubreddits/top/ for new TV subreddits
+https://github.com/reddit/reddit/wiki/OAuth2
+http://praw.readthedocs.org/en/latest/pages/oauth.html
+use pprint for debugging pprint(vars(submission))
+reddit bots & utilities: https://github.com/voussoir/reddit
+auto-wiki bot https://github.com/acini/autowikibot-py
+can use https://www.reddit.com/r/FreeKarma/ to get free karma if needed
+"""
