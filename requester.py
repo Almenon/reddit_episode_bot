@@ -1,104 +1,62 @@
 __author__ = 'Almenon'
 
-import time
 from urllib.request import urlopen
+from urllib.parse import urlencode
 from urllib import error
 from json import loads
-from re import compile,search
 import logging
 logging.basicConfig(level="DEBUG") # set level to INFO to get rid of debug messages
 
+error_msg = "None"
 base = "http://www.omdbapi.com/?"
-series = "Game of Thrones"
-lastwordfinder = "\w$" # find last word on specified line
-regex = compile(r"season +(\d)" # season X
-        r"(?: +episode +(\d))?") # episode X (optional)
-# in future find season or episode (if show is only 1 season people might forgo the season)
 
-# rename function
-def input(request):
+
+class CustomError(Exception):
+    pass
+
+def get_info(show='Game of thrones', season=1, episode=1):
     """
     returns title, plot, rating, and year
-    request should be a string in the form of the_episode_bot season X episode X
-        or the_episode_bot "title"
     """
+    global error_msg
 
-    # PARSE REQUEST
-    request = request.lower()
-    show = "t=" + series
-    show = show.replace(" ","%20")
-    season_episode = search(regex,request)
-    if season_episode is None:
-        logging.info("no season found in request")
-        return None
-    season = "&Season=" +season_episode.group(0)
-    if len(season_episode.groups()) > 1:
-        episode = "&Episode=" + season_episode.group(1)
-    else:
-        episode = None
-        return "episode_bot currently only supports info on specific episodes, not entire seasons"
-
-    # index = request.find("season")+7
-    # while index < request.length:
-    #     if index == " ": pass
-    #     else: season = "&Season=" + request[index]
-    # index = request.find("episode")+7
-    # while index < request.length:
-    #     if index == " ": pass
-    #     else: season = "&Season=" + request[index]
-
-
-    # old code:
-    # request = request.lower()
-    # show = "t=" + series
-    # show = show.replace(" ","%20")
-    # index = request.find("season") + 7
-    # season = "&Season=" + request[index]
-    # index = request.find("episode") + 8
-    # episode = "&Episode=" + request[index]
-    logging.info("Parsed request is " + base + show + season + episode)
-    keyrequest = None # use regex to select last word
+    post_request = urlencode([('t',show), ('Season',season), ('Episode',episode)])
+    logging.info("Parsed request is " + base + post_request)
 
     # get data from omdbapi.com
     try:
-        data = urlopen(base + show + episode + season)
+        data = urlopen(base + post_request)
     except error.HTTPError as e:
-        if e.code == 404: return "404 error: site not found"
-        if e.code == 400: return "invalid request"
-        else: print("error when opening site: " + e.code)
-    logging.debug(data)
+        if e.code == 400:
+            logging.warning(error_msg)
+            raise CustomError("There was an error when getting data from omdbapi.  Possibly the site is offline: " + \
+                        "400 error: invalid GET request")
+        else:
+            logging.warning(error_msg)
+            raise CustomError("There was an error when getting data from omdbapi.  "
+                              "Possibly the site is offline: " + e.code)
+
 
     # PARSE JSON & return requested data
     # thanks to http://stackoverflow.com/questions/6541767
     jsonData = data.read().decode('utf-8')
     logging.debug(jsonData)
     parsedJson = loads(jsonData)
-    logging.info(parsedJson)
-    # catch index errors or verify incoming data beforehand
-    # select a single attribute if specified
-    if keyrequest is not None:
-        print(keyrequest + parsedJson[keyrequest])
-    # thanks to http://stackoverflow.com/questions/5352546
-    requestedInfo = dict((key,parsedJson[key]) for key in ('Title','Plot','imdbRating', "Year"))
+    logging.info("JSON: " + str(parsedJson))
+    if len(parsedJson) == 2: # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
+        logging.info(error_msg)
+        raise CustomError(post_request + " returns error.  That episode or show is not in the database")
+    requestedInfo = ""
+    for key in ('Title','Plot','imdbRating', "Year"):
+        requestedInfo += key + ": " + parsedJson[key] + "\n\n"
     return requestedInfo
+    # todo: return IMDB link
     # http://www.omdbapi.com/?t=Game of Thrones&Season=1&Episode=1
 
-# helper function
-def printall(dictionary):
-    for key in dictionary:
-        print(key + " : " + dictionary[key])
-
-# output = input("Episode 1 Season 1 Year")
-# if type(output) == "String":
-#     print(output) # function returns string if error
-# else: printall(output)
+# output = get_info(" test string ")
+# print(output)
 
 """"
-
- FEATURES:
- top 10 episodes (optionally: by season)
- episode info & wiki link
-
  LINKS:
  http://www.omdbapi.com/
  check results against http://www.imdb.com/list/ls053752699/
