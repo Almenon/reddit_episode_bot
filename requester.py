@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 from urllib import error
 from json import loads
 import logging
-logging.basicConfig(level="DEBUG") # set level to INFO to get rid of debug messages
+logging.basicConfig(level="DEBUG")  # set level to INFO to get rid of debug messages
 
 error_msg = "None"
 base = "http://www.omdbapi.com/?"
@@ -14,18 +14,21 @@ base = "http://www.omdbapi.com/?"
 class CustomError(Exception):
     pass
 
+
 def get_info(show='Game of thrones', season=1, episode=1):
     """
     returns title, plot, rating, and year
     """
     global error_msg
 
-    post_request = urlencode([('t',show), ('Season',season), ('Episode',episode)])
+    post_request = urlencode([('t', show), ('Season', season), ('Episode', episode)])
     logging.info("Parsed request is " + base + post_request)
 
     # get data from omdbapi.com
     try:
         data = urlopen(base + post_request)
+        # url looks like this:
+        # http://www.omdbapi.com/?t=Game of Thrones&Season=1&Episode=1
     except error.HTTPError as e:
         if e.code == 400:
             logging.warning(error_msg)
@@ -36,30 +39,28 @@ def get_info(show='Game of thrones', season=1, episode=1):
             raise CustomError("There was an error when getting data from omdbapi.  "
                               "Possibly the site is offline: " + e.code)
 
-
     # PARSE JSON & return requested data
     # thanks to http://stackoverflow.com/questions/6541767
-    jsonData = data.read().decode('utf-8')
-    logging.debug(jsonData)
-    parsedJson = loads(jsonData)
-    logging.info("JSON: " + str(parsedJson))
-    if len(parsedJson) == 2: # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
+    json_data = data.read().decode('utf-8')
+    logging.debug(json_data)
+    parsed_json = loads(json_data)
+    logging.info("JSON: " + str(parsed_json))
+    if len(parsed_json) == 2:  # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
         logging.info(error_msg)
         raise CustomError(post_request + " returns error.  That episode or show is not in the database")
-    requestedInfo = ""
-    for key in ('Title','Plot','imdbRating', "Year"):
-        requestedInfo += key + ": " + parsedJson[key] + "\n\n"
-    return requestedInfo
-    # todo: return IMDB link
-    # http://www.omdbapi.com/?t=Game of Thrones&Season=1&Episode=1
+    requested_info = "###[" + parsed_json['Title'] + ']' + \
+                    '(' + "http://www.imdb.com/title/" + parsed_json['imdbID'] + ')' + "\n\n"
+    for key in ('Plot', 'imdbRating', 'Released'):
+        requested_info += key + ": " + parsed_json[key] + "\n\n"
+    return requested_info
 
+# for testing:
 # output = get_info(" test string ")
 # print(output)
 
 """"
  LINKS:
- http://www.omdbapi.com/
- check results against http://www.imdb.com/list/ls053752699/
+https://www.reddit.com/r/raerth/comments/cw70q/reddit_comment_formatting/
  possibly use http://imdbpy.sourceforge.net/index.html
     (i think it has support for episodes as well)
     (complex to use however - might require sql)
