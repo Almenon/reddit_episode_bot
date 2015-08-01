@@ -37,7 +37,7 @@ def get_info(show='Game of thrones', season=1, episode=1):
         else:
             logging.warning(error_msg)
             raise CustomError("There was an error when getting data from omdbapi.  "
-                              "Possibly the site is offline: " + e.code)
+                              "Possibly the site is offline: " + str(e.code))
 
     # PARSE JSON & return requested data
     # thanks to http://stackoverflow.com/questions/6541767
