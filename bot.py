@@ -5,6 +5,7 @@ __author__ = 'Almenon'
 
 import praw
 import requester
+import netflix_requester
 import commentParser
 from time import sleep
 from json import loads
@@ -58,7 +59,8 @@ while True:
             in_tv_subreddit = False
             if show is None:
                 try:
-                    show = subreddit_to_show['/r/' + str(message.subreddit)]
+                    show = subreddit_to_show['/r/' + str(message.subreddit).lower()]
+                    # maybe I can find TV show titles by seperating subreddit titles by caps after all
                     in_tv_subreddit = True
                 except KeyError:
                     r.send_message(message.author, "Please specify a show. If you are in the show's subreddit, "
@@ -71,6 +73,9 @@ while True:
             # (limit feature to certain subreddits because
             # it might not return correct result in some subreddits)
             answer = requester.get_info(show, season, episode)
+            netflix_link = netflix_requester.get_netflix_id(show)
+            if netflix_link is not None:
+                answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
             answer += bot_disclaimer
             try:
                 message.reply(answer)
