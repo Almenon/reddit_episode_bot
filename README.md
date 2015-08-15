@@ -18,8 +18,7 @@ if there's an issue. | [about](https://github.com/Almenon/reddit_episode_bot)
 
 ### How to activate
 
-You have to mention, reply, or message /u/the_episode_bot.
-Automatic activation when there is a post with the correct format. (currently limited to participating subreddits)
+You have to mention, reply, or message /u/the_episode_bot.  If you post a thread with the correct format in the title it automatically activates. (currently limited to participating subreddits)
 Currently it is only run at certain times so it will take a while for the bot to reply, if at all.
 
 Requests should be in a form similar to this:
@@ -33,8 +32,8 @@ can't distinguish between different series of the same TV show.  Sorry Doctor Wh
 
 ### Possible Upcoming features
 
-* login via Oauth (should arrive soon)
-* plot hiding by if a spoiler format is mentioned in the sidebar
+* plot hiding if a spoiler format is mentioned in the sidebar (in progress)
+* login via Oauth
 * search by episode title 
 * 24/7 online status via cloud-hosting 
 * support for shows with multiple series 
