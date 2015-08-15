@@ -7,7 +7,6 @@ from json import loads
 import logging
 logging.basicConfig(level="DEBUG")  # set level to INFO to get rid of debug messages
 
-error_msg = "None"
 base = "http://www.omdbapi.com/?"
 
 
@@ -19,7 +18,6 @@ def get_info(show='Game of thrones', season=1, episode=1):
     """
     returns title, plot, rating, and year
     """
-    global error_msg
 
     post_request = urlencode([('t', show), ('Season', season), ('Episode', episode)])
     logging.info("Parsed request is " + base + post_request)
@@ -30,14 +28,9 @@ def get_info(show='Game of thrones', season=1, episode=1):
         # url looks like this:
         # http://www.omdbapi.com/?t=Game of Thrones&Season=1&Episode=1
     except error.HTTPError as e:
-        if e.code == 400:
-            logging.warning(error_msg)
-            raise CustomError("There was an error when getting data from omdbapi.  Possibly the site is offline: " + \
-                        "400 error: invalid GET request")
-        else:
-            logging.warning(error_msg)
-            raise CustomError("There was an error when getting data from omdbapi.  "
-                              "Possibly the site is offline: " + str(e.code))
+        raise CustomError("There was an error when getting data from omdbapi.  "
+                            "Possibly the site is offline: error code " + str(e.code))
+        # 400 or 404 error indicates site is offline.
 
     # PARSE JSON & return requested data
     # thanks to http://stackoverflow.com/questions/6541767
@@ -46,7 +39,6 @@ def get_info(show='Game of thrones', season=1, episode=1):
     parsed_json = loads(json_data)
     logging.info("JSON: " + str(parsed_json))
     if len(parsed_json) == 2:  # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
-        logging.info(error_msg)
         raise CustomError(post_request + " returns error.  That episode or show is not in the database")
     requested_info = "###[" + parsed_json['Title'] + ']' + \
                     '(' + "http://www.imdb.com/title/" + parsed_json['imdbID'] + ')' + "\n\n"
