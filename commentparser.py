@@ -5,13 +5,16 @@ import logging
 logging.basicConfig(level="DEBUG") # set level to INFO to get rid of debug messages
 
 regex = compile(r"(?:\"([^\"]+)\"[ ,]*)??"  # "show title" (optional)
-                r"(s|e)[a-s]*\ *?(\d+)[ ,]*" # season or episode followed by optional spacing/comma
+                r"(s|e)[a-s]*\ *?(\d+)[ ,]*"  # season or episode followed by optional spacing/comma
                 r"(?:s|e)[a-s]*\ *?(\d+)")   # season/episode
-error_msg = ''
 
+# maybe I can find a show without having it wrapped in quotes
+#   just look for previous word
+#   problem: I would have to only look for previous word if not on a TV subreddit
+#   problem#2: not sure how idea would work with multiple episode requests
 
 class ParseError(Exception):
-   pass
+    pass
 
 # many other possible string inputs i could check for:
 """
@@ -26,22 +29,20 @@ class ParseError(Exception):
 
 
 def parse(request):
-    global error_msg
-    logging.debug("request: " + request)
+    logging.info("request: " + request)
 
     # PARSE REQUEST
     request = request.lower()
     show_season_episode = search(regex,request)
     if show_season_episode is None:
-        error_msg = "request does not contain correct format"
-        raise ParseError(error_msg)
-        return None
+        raise ParseError("request does not contain correct format")
     #keyrequest = None # possible future feature: return only a certain key/value pair
     if show_season_episode.group(1) is not None: show = show_season_episode.group(1)
+    else: show = None
     if show_season_episode.group(2) is 'e': # format is episode season
         episode = show_season_episode.group(3)
         season = show_season_episode.group(4)
-    else: # format is season episode
+    else:  # format is season episode
         season = show_season_episode.group(3)
         episode = show_season_episode.group(4)
 
