@@ -23,7 +23,7 @@ Currently it is only run at certain times so it will take a while for the bot to
 
 Requests should be in a form similar to this:
 
-> "show title" season 3 episode 2. 
+> show title season 3 episode 2. 
 
 Regex parsing allows the bot to accept many different request formats, as well as misspellings. The show title 
 can be automatically inferred if the subreddit corresponds to a show in the TV-related subreddits list. 
