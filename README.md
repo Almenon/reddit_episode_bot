@@ -4,13 +4,15 @@ A script that provides info and links to TV episodes.  It can automatically crea
 
 > ###[Brand New Couch](http://www.imdb.com/title/tt4311472)
 
-> Plot: Picking up where he left off, Bojack Horseman is now set to start filming his dream movie Secretariat.
+> [Mouseover for a brief summary](#mouseover "Picking up where he left off, Bojack Horseman is now set to start filming his dream movie Secretariat.")
 
 > imdbRating: 8.4
 
 > Released: 17 Jul 2015
 
 > [**Watch on Netflix**](http://www.netflix.com/title/70300800)
+
+> ---
 
 > <sup>I'm a bot that gives info on shows. | [message](http://www.reddit.com/message/compose?to=the_episode_bot) me 
 if there's an issue. | [about](https://github.com/Almenon/reddit_episode_bot)
@@ -23,7 +25,7 @@ Currently it is only run at certain times so it will take a while for the bot to
 
 Requests should be in a form similar to this:
 
-> show title season 3 episode 2. 
+> /u/the_episode_bot Simpsons season 3 episode 2. 
 
 Regex parsing allows the bot to accept many different request formats, as well as misspellings. The show title 
 can be automatically inferred if the subreddit corresponds to a show in the TV-related subreddits list. 
@@ -32,7 +34,6 @@ can't distinguish between different series of the same TV show.  Sorry Doctor Wh
 
 ### Possible Upcoming features
 
-* plot hiding if a spoiler format is mentioned in the sidebar (in progress)
 * login via Oauth
 * search by episode title 
 * 24/7 online status via cloud-hosting 
