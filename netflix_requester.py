@@ -37,7 +37,7 @@ def get_netflix_id(title):
             logging.info(title + " is not on netflix")
             return None
         else: # yay for syntactic sugar
-            raise CustomError("HTTP error in netflix_requester: " + str(e.code))
+            raise CustomError("HTTP error in netflix_requester: " + str(e.code) + '\n' + url)
 
     json_data = data.read().decode('utf-8')
     logging.debug("json data:" + json_data)
@@ -49,8 +49,11 @@ def get_netflix_id(title):
         logging.info(netflix_link)
         return netflix_link
     else:
-        raise CustomError("Netflix roulette returned error in json: \n" + str(parsed_json))
+        raise CustomError("Netflix roulette returned error in json: \n" + str(parsed_json) + '\n' + url)
 
 # print(get_netflix_id("Attack on Titan")) # uncomment this to test
+    # todo: figure out why this file can't be run on its own (low importance)
+    # SyntaxError: Non-UTF-8 code starting with '\xe1' in file C:/dev/PycharmProjects/reddit_episode_bot/netflix_requester.py on line 13, but no encoding declared; see http://python.org/dev/peps/pep-0263/ for details
+
 # thanks to http://netflixroulette.net/api/
 # function modified from get_netflix_id in NetflixRouletteAPI wrapper
