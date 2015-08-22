@@ -4,28 +4,13 @@ from re import compile, search
 import logging
 logging.basicConfig(level="DEBUG") # set level to INFO to get rid of debug messages
 
-regex = compile(r"(?:\"([^\"]+)\"[ ,]*)??"  # "show title" (optional)
-                r"(s|e)[a-s]*\ *?(\d+)[ ,]*"  # season or episode followed by optional spacing/comma
+regex = compile(r"(?:\/u\/the_episode_bot[ ,:]*(\S+(?:\ \S+\b)*)[ ,]+)?"  # bot's username followed by title (optional)
+                r"(s|e)[a-s]*\ *?(\d+)[ ,\[\]-]*"  # season or episode followed by optional seperator
                 r"(?:s|e)[a-s]*\ *?(\d+)")   # season/episode
-
-# maybe I can find a show without having it wrapped in quotes
-#   just look for previous word
-#   problem: I would have to only look for previous word if not on a TV subreddit
-#   problem#2: not sure how idea would work with multiple episode requests
+# example match:  /u/the_episode_bot pokemon S01E06
 
 class ParseError(Exception):
     pass
-
-# many other possible string inputs i could check for:
-"""
-   Season X (info on entire season)
-   episode X (season 1 assumed)
-   episode X-X or X,X.. (info on multiple episodes)
-   episode "title" (would need a database of titles)
-   episode X season X (some people might write in reversed order)
-   episode X [rating|actors|date|...] (request a certain piece of info)
-   X best episodes (sort by review and return X episodes)
-"""
 
 
 def parse(request):
@@ -36,7 +21,6 @@ def parse(request):
     show_season_episode = search(regex,request)
     if show_season_episode is None:
         raise ParseError("request does not contain correct format")
-    #keyrequest = None # possible future feature: return only a certain key/value pair
     if show_season_episode.group(1) is not None: show = show_season_episode.group(1)
     else: show = None
     if show_season_episode.group(2) is 'e': # format is episode season
@@ -47,3 +31,11 @@ def parse(request):
         episode = show_season_episode.group(4)
 
     return show, season, episode
+
+# testing
+
+# try:
+#     answer = parse("1 :: Beers in S01E05")
+#     print(answer)
+# except ParseError as e:
+#     print(e)
