@@ -1,0 +1,508 @@
+todo: figure out how to get logger to print to file and console
+see http://victorlin.me/posts/2012/08/26/good-logging-practice-in-python
+http://stackoverflow.com/questions/4508849/how-to-log-python-exception
+https://docs.python.org/3.5/howto/logging.html
+http://stackoverflow.com/questions/503846/how-do-i-echo-and-send-console-output-to-a-file-in-a-bat-script
+http://stackoverflow.com/questions/1420965/redirect-stdout-and-stderr-to-a-single-file
+    not sure if it's even possible
+
+# todo: notify me when bot comments or script dies or major error
+Script termination:   pythonw bot.py & python script_error.py
+https://pypi.python.org/pypi/notify/0.2.0 - notifies script termination via email
+    don't know how to set this up
+    maybe if it's an app tray icon it would turn red when stopping?
+python script.py & echo "script termination" <<<<< i probably want to do this to execute a termination script
+
+https://ole.im/blog/2011/oct/20/python-notify
+(above uses https://pypi.python.org/pypi/py-notify)
+https://pypi.python.org/pypi/pushnotify/0.5.1 - notifies phone (optional)
+    phone notification is good - would take some work though, and it's easier to do email
+actually I just used IFTT
+
+http://stackoverflow.com/questions/18623945/python-easygui-window-size
+https://docs.python.org/3.4/library/tkinter.html
+http://www.tutorialspoint.com/python/tk_text.htm
+    not sure how to make a small message window, maybe download easygui files & change vars?
+    (or find easygui files)
+
+https://stackoverflow.com/questions/15921203/how-to-create-a-system-tray-popup-message-with-python-windows
+http://stackoverflow.com/questions/9494739/how-to-build-a-systemtray-app-for-windows
+http://rbtray.sourceforge.net/
+http://lifehacker.com/5813244/hideit-minimizes-any-app-to-your-windows-system-tray
+
+
+Change login username to whatever username you're using.  Create a textfile with your password in the info directory.
+> r.login('your username here', password, disable_warning=True)
+Change subreddits variable in bot.py to whatever subreddits you want the bot to reply in.
+> subreddits = [r.get_subreddit("my subreddit")
+You can change netflix_requester.py to return whatever link you want.
+can use https://www.reddit.com/r/FreeKarma/ to get free karma if needed
+
+http://stackoverflow.com/questions/2963263/how-can-i-create-a-simple-message-box-in-python
+http://stackoverflow.com/questions/177287/alert-boxes-in-python
+A. figure out how windows messages work
+B. use simply python library
+
+
+
+
+ HOSTING:
+ on windows you can use taskscheduler
+ test on https://www.reddit.com/r/botwatch/
+ I can use https://www.heroku.com/pricing for free hosting
+    options - hereku (free)
+    azure - (use student discount -1 yr)
+    https://www.dreamspark.com/Product/Product.aspx?productid=99
+    amazon (use student discount - 1 yr)
+    http://aws.amazon.com/education/awseducate/
+https://www.openshift.com/ - free and 24/7 online status!
+
+  MISC LINKS:
+https://www.reddit.com/r/raerth/comments/cw70q/reddit_comment_formatting/
+possibly use http://imdbpy.sourceforge.net/index.html
+    (i think it has support for episodes as well)
+    (complex to use however - might require sql)
+https://www.reddit.com/r/MovieGuide/wiki/about
+https://github.com/ScudLee/anime-lists
+
+http://stackoverflow.com/questions/9705982/pythonw-exe-or-python-exe
+
+
+
+POSSIBLE REQUEST FORMATS:
+
+"""
+   Season X (info on entire season)
+   episode X (season 1 assumed)
+   episode X-X or X,X.. (info on multiple episodes)
+   episode "title" (would need a database of titles)
+   episode X season X (some people might write in reversed order)
+"""
+
+
+why the heck does this comment has the netflix id twice??/
+https://www.reddit.com/r/BoJackHorseman/comments/3hacge/waynes_random_button_mashing_in_s01e04_diane_i/cu62f24
+
+
+I'm the creator and maintainer of /u/the_episode_bot, a bot that automatically responds with an netflix and imdb link as well as a short summary of the episode requested.
+
+Would this bot be useful to your Subreddit?  If desired I can try to add features to my bot, like spoiler-tagging of episode summaries.
+
+
+SPOILER TAGGING:
+I was thinking of using spoiler tagging before I realized that I could just use hover-text
+It would work via automatic recognition of spoiler format via sidebar
+2 basic spoiler formats: [text](spoiler code) and [](spoiler code "text")
+each format has multiple options:  (#s, (#spoiler, (/s, (#s
+
+subreddit = r.get_subreddit('name')
+sidebar = subreddit.description
+if sidebar.find("#s"):
+    # do #s
+if sidebar.find("
+
+
+
+
+Version History
+
+Alpha .1
+
+Bot responds to mentions with episode info.
+
+Alpha .2
+
+???????
+
+Alpha .3
+
+Bot doesn't respond to comments in blacklisted subreddits
+
+Alpha .4
+
+Bot automatically infers show title from subreddit comment is in
+
+Alpha .5
+
+Bot provides link to netflix & imdb page
+
+
+
+        CONNECTION ERROR LOG:
+
+Traceback (most recent call last):
+  File "C:\Python34\lib\site-packages\requests\packages\urllib3\connectionpool.py", line 372, in _make_request
+    httplib_response = conn.getresponse(buffering=True)
+TypeError: getresponse() got an unexpected keyword argument 'buffering'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Python34\lib\site-packages\requests\packages\urllib3\connectionpool.py", line 544, in urlopen
+    body=body, headers=headers)
+  File "C:\Python34\lib\site-packages\requests\packages\urllib3\connectionpool.py", line 374, in _make_request
+    httplib_response = conn.getresponse()
+  File "C:\Python34\lib\http\client.py", line 1172, in getresponse
+    response.begin()
+  File "C:\Python34\lib\http\client.py", line 351, in begin
+    version, status, reason = self._read_status()
+  File "C:\Python34\lib\http\client.py", line 313, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "C:\Python34\lib\socket.py", line 371, in readinto
+    return self._sock.recv_into(b)
+  File "C:\Python34\lib\ssl.py", line 746, in recv_into
+    return self.read(nbytes, buffer)
+  File "C:\Python34\lib\ssl.py", line 618, in read
+    v = self._sslobj.read(len, buffer)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Python34\lib\site-packages\requests\adapters.py", line 370, in send
+    timeout=timeout
+  File "C:\Python34\lib\site-packages\requests\packages\urllib3\connectionpool.py", line 597, in urlopen
+    _stacktrace=sys.exc_info()[2])
+  File "C:\Python34\lib\site-packages\requests\packages\urllib3\util\retry.py", line 245, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+  File "C:\Python34\lib\site-packages\requests\packages\urllib3\packages\six.py", line 309, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Python34\lib\site-packages\requests\packages\urllib3\connectionpool.py", line 544, in urlopen
+    body=body, headers=headers)
+  File "C:\Python34\lib\site-packages\requests\packages\urllib3\connectionpool.py", line 374, in _make_request
+    httplib_response = conn.getresponse()
+  File "C:\Python34\lib\http\client.py", line 1172, in getresponse
+    response.begin()
+  File "C:\Python34\lib\http\client.py", line 351, in begin
+    version, status, reason = self._read_status()
+  File "C:\Python34\lib\http\client.py", line 313, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "C:\Python34\lib\socket.py", line 371, in readinto
+    return self._sock.recv_into(b)
+  File "C:\Python34\lib\ssl.py", line 746, in recv_into
+    return self.read(nbytes, buffer)
+  File "C:\Python34\lib\ssl.py", line 618, in read
+    v = self._sslobj.read(len, buffer)
+requests.packages.urllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:/dev/PycharmProjects/reddit_episode_bot/bot.py", line 55, in <module>
+    for message in messages:
+  File "C:\Python34\lib\site-packages\praw\__init__.py", line 524, in get_content
+    page_data = self.request_json(url, params=params)
+  File "C:\Python34\lib\site-packages\praw\decorators.py", line 173, in wrapped
+    return_value = function(reddit_session, *args, **kwargs)
+  File "C:\Python34\lib\site-packages\praw\__init__.py", line 579, in request_json
+    retry_on_error=retry_on_error)
+  File "C:\Python34\lib\site-packages\praw\__init__.py", line 423, in _request
+    response = handle_redirect()
+  File "C:\Python34\lib\site-packages\praw\__init__.py", line 392, in handle_redirect
+    verify=self.http.validate_certs, **kwargs)
+  File "C:\Python34\lib\site-packages\praw\handlers.py", line 148, in wrapped
+    result = function(cls, **kwargs)
+  File "C:\Python34\lib\site-packages\praw\handlers.py", line 57, in wrapped
+    return function(cls, **kwargs)
+  File "C:\Python34\lib\site-packages\praw\handlers.py", line 103, in request
+    allow_redirects=False, verify=verify)
+  File "C:\Python34\lib\site-packages\requests\sessions.py", line 573, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Python34\lib\site-packages\requests\adapters.py", line 415, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
+
+
+
+
+
+    VARS
+
+message:
+
+{'_has_fetched': True,
+ '_info_url': 'https://api.reddit.com/api/info/',
+ '_underscore_names': None,
+ '_uniq': None,
+ 'author': Redditor(user_name='the_episode_bot'),
+ 'body': 'The episode summary is a nice thing. The problem is that IMDb is '
+         'more popular...\n'
+         '\n'
+         'request does not contain correct format',
+ 'body_html': '<!-- SC_OFF --><div class="md"><p>The episode summary is a '
+              'nice thing. The problem is that IMDb is more popular...</p>\n'
+              '\n'
+              '<p>request does not contain correct format</p>\n'
+              '</div><!-- SC_ON -->',
+ 'context': '',
+ 'created': 1440564705.0,
+ 'created_utc': 1440561105.0,
+ 'dest': 'Almenon',
+ 'distinguished': None,
+ 'first_message': None,
+ 'first_message_name': None,
+ 'id': '3zwq5e',
+ 'json_dict': None,
+ 'name': 't4_3zwq5e',
+ 'new': False,
+ 'parent_id': None,
+ 'reddit_session': <praw.Reddit object at 0x02CEFEF0>,
+ 'replies': [],
+ 'subject': 'episodebot error',
+ 'subreddit': None,
+ 'was_comment': False}
+
+subreddit:
+
+{'_case_name': 'bottest',
+ '_has_fetched': False,
+ '_info_url': 'https://api.reddit.com/r/bottest/about/',
+ '_listing_urls': ['https://api.reddit.com/r/bottest/new/.json',
+                   'https://api.reddit.com/r/bottest/.json',
+                   'https://api.reddit.com/r/bottest/top/.json',
+                   'https://api.reddit.com/r/bottest/controversial/.json',
+                   'https://api.reddit.com/r/bottest/rising/.json'],
+ '_underscore_names': None,
+ '_uniq': None,
+ '_url': 'https://api.reddit.com/r/bottest/',
+ 'display_name': 'bottest',
+ 'json_dict': None,
+ 'reddit_session': <praw.Reddit object at 0x02A6FFF0>}
+
+mention:
+
+{'_has_fetched': True,
+ '_has_fetched_replies': False,
+ '_info_url': 'https://api.reddit.com/api/info/',
+ '_replies': [],
+ '_submission': None,
+ '_underscore_names': ['replies'],
+ '_uniq': None,
+ 'author': Redditor(user_name='pinetree505'),
+ 'body': '/u/the_episode_bot "fringe" S03E01',
+ 'body_html': '<!-- SC_OFF --><div class="md"><p><a '
+              'href="/u/the_episode_bot">/u/the_episode_bot</a> '
+              '&quot;fringe&quot; S03E01</p>\n'
+              '</div><!-- SC_ON -->',
+ 'context': '/r/botwatch/comments/3dl08e/any_interest_in_an_episodebot/ctxlvib?context=3',
+ 'created': 1439182205.0,
+ 'created_utc': 1439178605.0,
+ 'dest': 'the_episode_bot',
+ 'distinguished': None,
+ 'first_message': None,
+ 'first_message_name': None,
+ 'id': 'ctxlvib',
+ 'json_dict': None,
+ 'likes': None,
+ 'link_title': 'Any interest in an episode-bot?',
+ 'name': 't1_ctxlvib',
+ 'new': False,
+ 'parent_id': 't3_3dl08e',
+ 'reddit_session': <praw.Reddit object at 0x02CEFEF0>,
+ 'subject': 'username mention',
+ 'subreddit': Subreddit(subreddit_name='botwatch'),
+ 'was_comment': True}
+
+comment:
+
+{'_has_fetched': True,
+ '_has_fetched_replies': True,
+ '_info_url': 'https://api.reddit.com/api/info/',
+ '_replies': [],
+ '_submission': None,
+ '_underscore_names': ['replies'],
+ '_uniq': None,
+ 'approved_by': None,
+ 'archived': False,
+ 'author': Redditor(user_name='Xertico'),
+ 'author_flair_css_class': None,
+ 'author_flair_text': None,
+ 'banned_by': None,
+ 'body': 'bernie sanders',
+ 'body_html': '<div class="md"><p>bernie sanders</p>\n</div>',
+ 'controversiality': 0,
+ 'created': 1440424373.0,
+ 'created_utc': 1440420773.0,
+ 'distinguished': None,
+ 'downs': 0,
+ 'edited': False,
+ 'gilded': 0,
+ 'id': 'cudtsqd',
+ 'json_dict': None,
+ 'likes': None,
+ 'link_author': 'JustBernieThings',
+ 'link_id': 't3_39uul8',
+ 'link_title': 'bernie test',
+ 'link_url': 'http://www.reddit.com/r/bottest/comments/39uul8/bernie_test/',
+ 'mod_reports': [],
+ 'name': 't1_cudtsqd',
+ 'num_reports': None,
+ 'over_18': False,
+ 'parent_id': 't3_39uul8',
+ 'quarantine': False,
+ 'reddit_session': <praw.Reddit object at 0x02FDC030>,
+ 'removal_reason': None,
+ 'report_reasons': None,
+ 'saved': False,
+ 'score': 1,
+ 'score_hidden': False,
+ 'subreddit': Subreddit(subreddit_name='bottest'),
+ 'subreddit_id': 't5_2sqo1',
+ 'ups': 1,
+ 'user_reports': []}
+
+link post:
+
+{'_api_link': 'https://api.reddit.com/r/funny/comments/3ihkl0/custominkcom_i_believe_is_judging_me/',
+ '_comment_sort': None,
+ '_comments': None,
+ '_comments_by_id': {},
+ '_has_fetched': True,
+ '_info_url': 'https://api.reddit.com/api/info/',
+ '_orphaned': {},
+ '_params': {},
+ '_replaced_more': False,
+ '_underscore_names': None,
+ '_uniq': None,
+ 'approved_by': None,
+ 'archived': False,
+ 'author': Redditor(user_name='ThinkyandTheBrain'),
+ 'author_flair_css_class': None,
+ 'author_flair_text': None,
+ 'banned_by': None,
+ 'clicked': False,
+ 'created': 1440637568.0,
+ 'created_utc': 1440608768.0,
+ 'distinguished': None,
+ 'domain': 'i.imgur.com',
+ 'downs': 0,
+ 'edited': False,
+ 'from': None,
+ 'from_id': None,
+ 'from_kind': None,
+ 'gilded': 0,
+ 'hidden': False,
+ 'hide_score': True,
+ 'id': '3ihkl0',
+ 'is_self': False,
+ 'json_dict': None,
+ 'likes': None,
+ 'link_flair_css_class': None,
+ 'link_flair_text': None,
+ 'media': None,
+ 'media_embed': {},
+ 'mod_reports': [],
+ 'name': 't3_3ihkl0',
+ 'num_comments': 0,
+ 'num_reports': None,
+ 'over_18': False,
+ 'permalink': 'https://www.reddit.com/r/funny/comments/3ihkl0/custominkcom_i_believe_is_judging_me/',
+ 'post_hint': 'image',
+ 'preview': {'images': [{'id': 'uF8fMDSy8EMy5EXTKJAEGTngQWvjnVaCnHzSUhvBSu8',
+                         'resolutions': [{'height': 34,
+                                          'url': 'https://i.redditmedia.com/v_bZbLjrbhy-drID_r0xYEPqnN-TpFuhytt9yycoTZc.jpg?fit=crop&crop=faces%2Centropy&arh=2&w=108&s=6bae43fac35697badd7a38f2cd846435',
+                                          'width': 108},
+                                         {'height': 69,
+                                          'url': 'https://i.redditmedia.com/v_bZbLjrbhy-drID_r0xYEPqnN-TpFuhytt9yycoTZc.jpg?fit=crop&crop=faces%2Centropy&arh=2&w=216&s=86f9876e6ba816fcb9aead1341b971ee',
+                                          'width': 216},
+                                         {'height': 102,
+                                          'url': 'https://i.redditmedia.com/v_bZbLjrbhy-drID_r0xYEPqnN-TpFuhytt9yycoTZc.jpg?fit=crop&crop=faces%2Centropy&arh=2&w=320&s=4be1e58d3819a7b91376fd06506e0bf4',
+                                          'width': 320}],
+                         'source': {'height': 183,
+                                    'url': 'https://i.redditmedia.com/v_bZbLjrbhy-drID_r0xYEPqnN-TpFuhytt9yycoTZc.jpg?s=71f1aa0123e580f8594e8146fa9659b2',
+                                    'width': 571},
+                         'variants': {}}]},
+ 'quarantine': False,
+ 'reddit_session': <praw.Reddit object at 0x02FDC030>,
+ 'removal_reason': None,
+ 'report_reasons': None,
+ 'saved': False,
+ 'score': 1,
+ 'secure_media': None,
+ 'secure_media_embed': {},
+ 'selftext': '',
+ 'selftext_html': None,
+ 'stickied': False,
+ 'subreddit': Subreddit(subreddit_name='funny'),
+ 'subreddit_id': 't5_2qh33',
+ 'suggested_sort': None,
+ 'thumbnail': 'http://b.thumbs.redditmedia.com/W7SsFlpRcCh1lutojNRXcCFKbscwuTuLAET0sf9daiE.jpg',
+ 'title': 'CustomInk.com I believe is judging me.',
+ 'ups': 1,
+ 'url': 'http://i.imgur.com/JVvyYdj.png',
+ 'user_reports': [],
+ 'visited': False}
+
+ self-post:
+
+ {'_api_link': 'https://api.reddit.com/r/bottest/comments/3hftug/i_would_just_like_to_take_a_moment_to_introduce/',
+ '_comment_sort': None,
+ '_comments': None,
+ '_comments_by_id': {},
+ '_has_fetched': True,
+ '_info_url': 'https://api.reddit.com/api/info/',
+ '_orphaned': {},
+ '_params': {},
+ '_replaced_more': False,
+ '_underscore_names': None,
+ '_uniq': None,
+ 'approved_by': None,
+ 'archived': False,
+ 'author': Redditor(user_name='Bear_Taco'),
+ 'author_flair_css_class': None,
+ 'author_flair_text': None,
+ 'banned_by': None,
+ 'clicked': False,
+ 'created': 1439904884.0,
+ 'created_utc': 1439901284.0,
+ 'distinguished': None,
+ 'domain': 'self.bottest',
+ 'downs': 0,
+ 'edited': False,
+ 'from': None,
+ 'from_id': None,
+ 'from_kind': None,
+ 'gilded': 0,
+ 'hidden': False,
+ 'hide_score': False,
+ 'id': '3hftug',
+ 'is_self': True,
+ 'json_dict': None,
+ 'likes': None,
+ 'link_flair_css_class': None,
+ 'link_flair_text': None,
+ 'media': None,
+ 'media_embed': {},
+ 'mod_reports': [],
+ 'name': 't3_3hftug',
+ 'num_comments': 0,
+ 'num_reports': None,
+ 'over_18': False,
+ 'permalink': 'https://www.reddit.com/r/bottest/comments/3hftug/i_would_just_like_to_take_a_moment_to_introduce/',
+ 'quarantine': False,
+ 'reddit_session': <praw.Reddit object at 0x01B6C030>,
+ 'removal_reason': None,
+ 'report_reasons': None,
+ 'saved': False,
+ 'score': 2,
+ 'secure_media': None,
+ 'secure_media_embed': {},
+ 'selftext': 'Say hi, /u/YTDLbot. Its owner is fairly active on the username '
+             'and may actually come to speak with us. :D',
+ 'selftext_html': '<!-- SC_OFF --><div class="md"><p>Say hi, <a '
+                  'href="/u/YTDLbot">/u/YTDLbot</a>. Its owner is fairly '
+                  'active on the username and may actually come to speak '
+                  'with us. :D</p>\n'
+                  '</div><!-- SC_ON -->',
+ 'stickied': False,
+ 'subreddit': Subreddit(subreddit_name='bottest'),
+ 'subreddit_id': 't5_2sqo1',
+ 'suggested_sort': None,
+ 'thumbnail': '',
+ 'title': 'I would just like to take a moment to introduce you guys to a new '
+          'bot called YTDLbot. He exists with a soul purpose to relink any '
+          'age restricted YT video without restriction.',
+ 'ups': 2,
+ 'url': 'http://www.reddit.com/r/bottest/comments/3hftug/i_would_just_like_to_take_a_moment_to_introduce/',
+ 'user_reports': [],
+ 'visited': False}

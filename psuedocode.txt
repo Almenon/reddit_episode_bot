@@ -1,0 +1,39 @@
+MAIN:
+
+load vars
+
+main loop:
+    get posts & comments
+    loop through posts
+        if correct format, analyze and reply
+    loop through comments
+        if correct format, analyze and reply
+
+    POSTS:
+
+            parse comment
+            if no show, infer show from subreddit
+            get formatted show info
+            get netflix link
+            if netflix_link is not None:
+                answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
+            else:
+                answer += "Not available on Netflix\n\n"
+            answer += bot_disclaimer
+            try replying
+            catch replying errors
+
+REQUESTER:
+
+parse request
+throw error if request not in correct format
+turn request into URL GET request
+
+open url
+throw error if bad request
+
+parse JSON into object
+throw error if nothing in database
+
+return vars
+

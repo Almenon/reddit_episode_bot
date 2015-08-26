@@ -1,0 +1,165 @@
+
+# (?:\"([^\"]+)\"[ ,]*)??
+# (?:\/u\/the_episode_bot[ ,]*(.+?))?[ ,]+
+# (\S+(?:\ \S+\b)*) collects words inbetween mention and sXeX
+
+# maybe I can find a show without having it wrapped in quotes
+#   look for word inbetween s4e2 and episode_bot
+#   optional so wont matter for posts
+#       actually will matter - ex: posts on /r/television...
+#       ???? not sure what to do about those
+#   mentions and other comments will have correct format (yes)
+
+# or maybe posts and comments could be seperate regex?
+    # but then
+
+# comment: /u/the_episode_bot title s4w2
+# post:   hey look at this image for s2e4
+#
+# general post: hey look at this image from archer s4e1
+#   failure condition: no comment
+
+# things that i know for sure: PREVIOUS WORD WONT WORK - lots of shows are multiple words
+#   separate posts and comment regex for now - i can figure out how to do later
+
+
+
+#import sys
+#sys.stderr = open("botlog.txt",'w')
+    # disable this when testing
+    # make sure to periodically check on log
+
+
+"""
+
+            # if in_tv_subreddit is True:
+            #     discussion = r.search("self:yes" + ' season ' + season + ' episode ' + episode + 'discussion',
+            #                           subreddit=message.subreddit)
+            #     try:
+            #         discussion = next(discussion)['permalink']  # link to first result
+            #     except StopIteration:
+            #         logging.warning("no search results")
+            #     discussion = "[discussion](" + discussion + ')'  # reddit formatting
+
+#tv_subreddits_unformatted = open("subreddits.txt").read().split("\n")
+#tv_subreddits = {}
+#for i in range(0,len(tv_subreddits_unformatted),2): tv_subreddits[tv_subreddits_unformatted[i+1]] = tv_subreddits_unformatted[i]
+
+# helper function
+def printall(dictionary):
+    for key in dictionary:
+        print(key + " : " + dictionary[key])
+
+# database = open("database.txt")
+# number_mentions = int(database.readline())
+# number_replies = int(database.readline())
+
+    def get_custom_unread(comments, number_read):
+        for comment in comments[number_mentions:]: # gets new mentions
+            answer = get_info(str(comment))
+            if answer is not None:
+                if answer[0:3] != "400" and answer[0:3] != "404":
+                    comment.reply(answer)
+                else:
+                    logging.warning("database is offline!")
+                    comment.reply("I can't process your request right now, the database is offline")
+                    r.send_message("Almenon", "episodebot warning", answer)
+                number_read += 1
+            else: r.send_message("Almenon", "bad request to episodebot", comment)
+        return number_read
+
+    # mentions = r.get_mentions()
+    # number_mentions = get_custom_unread(mentions, number_mentions)
+    # replies = r.get_comment_replies
+    # number_replies = get_custom_unread(replies, number_replies)
+    # open("database.txt",'w').write(number_mentions + '\n' + number_replies)
+
+    INPUT STRING PARSING
+
+# old code:
+# request = request.lower()
+# show = "t=" + series
+# show = show.replace(" ","%20")
+# index = request.find("season") + 7
+# season = "&Season=" + request[index]
+# index = request.find("episode") + 8
+# episode = "&Episode=" + request[index]
+
+# index = request.find("season")+7
+# while index < request.length:
+#     if index == " ": pass
+#     else: season = "&Season=" + request[index]
+# index = request.find("episode")+7
+# while index < request.length:
+#     if index == " ": pass
+#     else: season = "&Season=" + request[index]
+
+if len(season_episode.groups()) > 1:
+    episode = season_episode.group(1)
+else:
+    episode = None
+    return "episode_bot currently only supports info on specific episodes, not entire seasons"
+
+    REGEX:
+
+    r"(?:\"(.+)\")?" # "title" (optional)
+    r" *,? +"           # space with optional comma
+    r"(?:s(\d+) *e(\d+)|" # sXeX (alternative form)
+    r"season +(\d+)"    # season X
+    r" *,? +"           # space with optional comma
+    r"episode +(\d+))")  # episode X
+\/u\/the_episode_bot(?: +(.+) +)?s(\d+)e(\d+) # does below, idk difference
+\/u\/the_episode_bot +(?!episode|e\d)\w+ # matches the_episode_bot followed by title (word that's not episode)
+(s|e)(?:pisode|eason) +(\d+) *,? *(?:(s|e)\w+ +(\d+))?
+(?:cat +(\d+) +dog (\d+)|dog +(\d+) +cat +(\d+))
+(?:episode +(?P<episode>\d+) +season +(?P<season>\d+)|season +(?P<season>\d+) +episode +(?P<episode>\d+))
+episode +(?P<episode>\d+)|season +(?P<season>\d+)
+
+    OAuth2util code: (use this, not regular OAuth)
+
+    # # once 55 min has passed update hourly access token
+    # last_time = time()
+    # if time() > 3300 + last_time:
+    #   o.refresh()
+
+import OAuth2Util
+    # library that makes it easier to use OAuth
+    # https://github.com/SmBe19/praw-OAuth2Util
+o = OAuth2Util.OAuth2Util(r) # goes after r = Praw.Reddit
+
+    Oauth code:
+
+# import webbrowser # only needed if i use standard Oauth
+r.set_oauth_app_info(client_id='',
+                    client_secret='',
+                     redirect_uri='')
+url = r.get_authorize_url("almenon51", "identity privatemessages submit", refreshable=True)
+# edit read history flair save are some more permissions i might need
+webbrowser.open(url)
+sleep(30) # stop program and update below line
+access_information = r.get_access_information('') # only lasts 60 min
+user = r.get_me()
+logging.debug(user.name, user.link_karma)
+r.login('Almenon','password') # login will be deprecated soon!
+
+    last_time = time()
+    if time() > 3300 + last_time:
+        access_information = r.refresh_access_information(access_information['refresh_token'])
+
+    PRAW code:
+
+subreddit = r.get_subreddit('bottest') #'subreddit1 + subreddit2' if multiple
+subreddit_comments = subreddit.get_comments()
+# subreddit_comments is a generator
+logging.debug(subreddit_comments)
+
+for submission in subreddit.get_hot(limit=10):
+    flat_comments = praw.helpers.flatten_tree(submission.comments)
+    for comment in flat_comments:
+        if comment.body.find("episodebot") and comment.id not in already_replied
+            comment.reply("message")
+            already_replied.add(comment.id)
+            number_responses = number_responses + 1
+    #user_name = "Almenon"
+#user = r.get_redditor(user_name)
+"""

@@ -1,0 +1,19 @@
+Code Contribution:
+
+the regex guru OnlineCop from regex IRC for speeding up, fixing, and generally improving my regex
+
+Help:
+
+regex101.com
+OnlineCop on regex IRC
+
+Bug-finding:
+
+whine_and_cheese
+isgoodlatvian
+Hlug2340
+
+Feature ideas:
+
+Itsthejoker
+dibsODDJOB
