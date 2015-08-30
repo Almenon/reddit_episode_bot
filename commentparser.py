@@ -5,9 +5,12 @@ import logging
 
 
 regex = compile(r"(?:\/u\/the_episode_bot[ ,:]*(\S+(?:\ \S+\b)*)[ ,]+)?"  # bot's username followed by title (optional)
-                r"(s|e)[a-s]*\ *?(\d+)[ ,\[\]-]*"  # season or episode followed by optional seperator
+                r"(s|e)[a-s]*\ *?(\d+)" # season or episode
+                r"[\ ,_\[\]\-x]*"  # optional characters inbetween season / episode
                 r"(?:s|e)[a-s]*\ *?(\d+)")   # season/episode
-# example match:  /u/the_episode_bot pokemon S01E06
+# example match:  /u/the_episode_bot pokemon S01_E06
+# may be faster to look for season/episode or episode/season seperately
+# todo: construct regex test suite with all the post titles so far
 
 class ParseError(Exception):
     pass
