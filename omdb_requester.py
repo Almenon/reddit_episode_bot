@@ -50,6 +50,8 @@ def get_info(show='Game of thrones', season=1, episode=1):
         requested_info += '[Mouseover for a brief summary](#mouseover "' + parsed_json["Plot"] + '")\n\n'
     else:
         requested_info += "No summary available.  Click on title to go to imdb page.\n\n"
+    if parsed_json['Year'].isdigit() and int(parsed_json['Year']) > 2015:
+        requested_info += "Not released yet.\n\n"
     for key in ('imdbRating', 'Released'):
         if parsed_json[key] != 'N/A':
             requested_info += key + ": " + parsed_json[key] + "\n\n"
