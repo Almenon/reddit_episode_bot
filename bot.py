@@ -7,6 +7,7 @@ import omdb_requester
 import netflix_requester
 import commentparser
 from requests.exceptions import ConnectionError
+from requests.exceptions import ReadTimeout
 from time import sleep
 from json import loads, load
 import logging
@@ -76,12 +77,13 @@ while True:
                         show = subreddit_to_show['/r/' + str(submission.subreddit).lower()]
                     # get netflix & imdb link, add on disclaimer
                     answer = omdb_requester.get_info(show, season, episode)
-                    netflix_link = netflix_requester.get_netflix_link(show)
-                    if netflix_link is None:
-                        answer += "Not available on Netflix\n\n"
-                        logging.warning("the subreddit should be availible on netflix!")
-                    else:
-                        answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
+                    if answer.find("Not released"):  # if it is released
+                        netflix_link = netflix_requester.get_netflix_link(show)
+                        if netflix_link is None:
+                            answer += "Not available on Netflix\n\n"
+                            logging.warning("the subreddit should be availible on netflix!")
+                        else:
+                            answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
                     answer += bot_disclaimer
                     # post
                     submission.add_comment(answer)
@@ -129,7 +131,8 @@ while True:
                         continue
 
                 answer = omdb_requester.get_info(show, season, episode)
-                netflix_link = netflix_requester.get_netflix_link(show)
+                if answer.find("Not released") is -1:  # if it is released
+                    netflix_link = netflix_requester.get_netflix_link(show)
                 if netflix_link is not None:
                     answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
                 else:
@@ -160,15 +163,17 @@ while True:
             logging.warning("HTTP error code: " + str(e._raw.status_code))
         except AttributeError:
             pass
-    except ConnectionError as e:
-        print("there was a connection error")
+    except (ConnectionError, ReadTimeout) as e:
+        print("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
         logging.warning(e)
-        logging.warning(vars(e))
-        logging.warning(e._raw.status_code)
+        # logging.warning(vars(e))  # {'response': None, 'request': <PreparedRequest [GET]>}
+        # logging.warning(e._raw.status_code)  # todo: find out why this doesn't work (low importance)
         last_checked = time()
         with open("info/time.txt", 'w') as file:
             file.write(str(last_checked))
         sleep(1200)  # sleep for 20 min
+    # todo: catch error if internet connection goes offline http://stackoverflow.com/questions/22851609/python-errno-11001-getaddrinfo-failed
+    # requests.exceptions.ConnectionError: ('Connection aborted.', gaierror(11001, 'getaddrinfo failed'))
 
     logging.info("sleeping for 3 minutes")
     print("sleeping")
