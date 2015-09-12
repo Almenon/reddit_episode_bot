@@ -3,10 +3,12 @@ __author__ = 'Almenon'
 import praw
 # http://praw.readthedocs.org
 from time import time
-import omdb_requester
-import netflix_requester
+import comment_formatter
+import postParser
 import commentparser
+import omdb_requester
 from requests.exceptions import ConnectionError
+from requests.exceptions import ReadTimeout
 from time import sleep
 from json import loads, load
 import logging
@@ -16,9 +18,10 @@ logging.basicConfig(level="INFO",
                     filename="info/bot.log",
                     format='%(asctime)s %(module)s:%(levelname)s: %(message)s'
                     )
+# todo: fix logging (it's not logging to the file anywhere!)
 logging.info("Bot started")
 # set level to INFO to get rid of debug messages
-user_agent = "python script for episode information upon username mention or reply.  alpha v.5 by Almenon"
+user_agent = "python script for episode information upon username mention or reply.  alpha v1.1 by Almenon"
 # string should not contain keyword bot
 r = praw.Reddit(user_agent=user_agent)
 with open("info/password.txt") as file:
@@ -34,8 +37,6 @@ restricted_subreddits = restricted_subreddits["disallowed"] + restricted_subredd
 
 subreddits = [r.get_subreddit("arrow"), r.get_subreddit("bojackhorseman"), r.get_subreddit("orangeisthenewblack")]
 
-with open("info/subreddits.txt") as file:
-    subreddit_to_show = load(file) # dictionary [subreddit name] = tv show
 with open("info/time.txt") as file:
     last_checked = load(file)
 
@@ -66,32 +67,18 @@ while True:
                     if submission.created_utc < last_checked:
                         logging.info("no new posts in " + str(submission.subreddit))
                         break
-                    logging.info("analyzing " + submission.permalink + "\n created at utc time " + str(submission.created_utc))
+                    logging.info("analyzing " + submission.permalink)
                     print("analyzing " + submission.permalink)
-                    # parse
-                    parsedComment = commentparser.parse(submission.title)
-                    show, season, episode = parsedComment
-                    # infer show
-                    if show is None:
-                        show = subreddit_to_show['/r/' + str(submission.subreddit).lower()]
-                    # get netflix & imdb link, add on disclaimer
-                    answer = omdb_requester.get_info(show, season, episode)
-                    netflix_link = netflix_requester.get_netflix_link(show)
-                    if netflix_link is None:
-                        answer += "Not available on Netflix\n\n"
-                        logging.warning("the subreddit should be availible on netflix!")
-                    else:
-                        answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
-                    answer += bot_disclaimer
-                    # post
+                    answer = comment_formatter.format_comment(submission.title, submission.subreddit, post=True)
                     submission.add_comment(answer)
+                    logging.info("bot commented at " + submission.permalink)
                     print("bot commented at " + submission.permalink)
 
                 except omdb_requester.CustomError as error_msg:
                     # send error message to me
                     r.send_message("Almenon", "epiosdebot error", submission.permalink + '\n\n' + str(error_msg))
                     logging.warning(str(error_msg))
-                except commentparser.ParseError as error_msg:
+                except postParser.ParseError as error_msg:
                     logging.warning(str(error_msg))
 
         last_checked = time()
@@ -111,35 +98,22 @@ while True:
                     continue
                 # if message.subreddit.description.find(
                 #   needs_spoiler = True
-                parsedComment = commentparser.parse(message.body)
-                show, season, episode = parsedComment
-                in_tv_subreddit = False
-                if show is None:
-                    try:
-                        show = subreddit_to_show['/r/' + str(message.subreddit).lower()]
-                        # maybe I can find TV show titles by seperating subreddit titles by caps after all
-                        in_tv_subreddit = True
-                    except KeyError:
-                        r.send_message(message.author, "Episode bot could not reply",
-                                       "Please specify a show. If you are in the show's subreddit, "
-                                       "you shouldn't need to specify it. Message /u/almenon to "
-                                       "add the subreddit to the TV-related subreddit database")
-                        logging.info("a subreddit was not listed in database")
-                        message.mark_as_read()
-                        continue
-
-                answer = omdb_requester.get_info(show, season, episode)
-                netflix_link = netflix_requester.get_netflix_link(show)
-                if netflix_link is not None:
-                    answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
-                else:
-                    answer += "Not available on Netflix\n\n"
-                answer += bot_disclaimer
+                try:
+                    answer = comment_formatter.format_comment(message.body, message.subreddit, post=False)
+                except KeyError:
+                    r.send_message(message.author, "Episode bot could not reply",
+                                   "Please specify a show. If you are in the show's subreddit, "
+                                   "you shouldn't need to specify it. Message /u/almenon to "
+                                   "add the subreddit to the TV-related subreddit database")
+                    logging.info("a subreddit was not listed in database")
+                    message.mark_as_read()
+                    continue
                 message.reply(answer)
                 print("bot replied to a comment")
             except (commentparser.ParseError, omdb_requester.CustomError) as error_msg:
                 # send error message to me and commenter
                 try:
+                    # todo: figure out why messages never have a link attached to them
                     logging.warning(str(error_msg) + '\n' + message.link_url+message.id)
                     r.send_message("Almenon", "episodebot error", message.link_url+message.id + '\n\n' + str(error_msg))
                 except AttributeError:
@@ -159,15 +133,17 @@ while True:
             logging.warning("HTTP error code: " + str(e._raw.status_code))
         except AttributeError:
             pass
-    except ConnectionError as e:
-        print("there was a connection error")
+    except (ConnectionError, ReadTimeout) as e:
+        print("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
         logging.warning(e)
-        logging.warning(vars(e))
-        logging.warning(e._raw.status_code)
+        # logging.warning(vars(e))  # {'response': None, 'request': <PreparedRequest [GET]>}
+        # logging.warning(e._raw.status_code)  # todo: find out why this doesn't work (low importance)
         last_checked = time()
         with open("info/time.txt", 'w') as file:
             file.write(str(last_checked))
-        sleep(600)  # sleep for 10 min
+        sleep(1200)  # sleep for 20 min
+    # todo: catch error if internet connection goes offline http://stackoverflow.com/questions/22851609/python-errno-11001-getaddrinfo-failed
+    # requests.exceptions.ConnectionError: ('Connection aborted.', gaierror(11001, 'getaddrinfo failed'))
 
     logging.info("sleeping for 3 minutes")
     print("sleeping")

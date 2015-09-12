@@ -31,10 +31,11 @@ def get_info(show='Game of thrones', season=1, episode=1):
         data = urlopen(base + post_request)
         # url looks like this:
         # http://www.omdbapi.com/?t=Game of Thrones&Season=1&Episode=1
-    except error.HTTPError as e:
+    except (error.HTTPError, error.URLError) as e:
         raise CustomError("There was an error when getting data from omdbapi.  "
                           "Possibly the site is offline: error code " + str(e.code))
         # 400 or 404 error indicates site is offline.
+        # 403 indicates >?????
 
     # PARSE JSON & return requested data
     # thanks to http://stackoverflow.com/questions/6541767
@@ -44,17 +45,9 @@ def get_info(show='Game of thrones', season=1, episode=1):
     logging.info("JSON: " + str(parsed_json))
     if len(parsed_json) == 2:  # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
         raise CustomError(base+post_request + " returns error.  That episode or show is not in the database")
-    requested_info = "###[" + parsed_json['Title'] + ']' + \
-                     '(' + "http://www.imdb.com/title/" + parsed_json['imdbID'] + ") \n\n"
-    if parsed_json["Plot"] != "N/A":
-        requested_info += '[Mouseover for a brief summary](#mouseover "' + parsed_json["Plot"] + '")\n\n'
-    else:
-        requested_info += "No summary available.  Click on title to go to imdb page.\n\n"
-    for key in ('imdbRating', 'Released'):
-        if parsed_json[key] != 'N/A':
-            requested_info += key + ": " + parsed_json[key] + "\n\n"
-        else: continue
-    return requested_info
+    return parsed_json
+
+
 
 # for testing:
 # try:
@@ -62,6 +55,7 @@ def get_info(show='Game of thrones', season=1, episode=1):
 #     print(output)
 # except CustomError as e:
 #     print(e)
+
 
 def verify_show(show, season, number_episodes):
     """
