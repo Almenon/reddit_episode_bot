@@ -1,3 +1,6 @@
+Code Contribution:
+
+the regex guru OnlineCop from regex IRC for speeding up, fixing, and generally improving my regex
 
 Help:
 

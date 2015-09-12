@@ -105,3 +105,7 @@ crashlytics-build.properties
 # password file
 
 password.txt
+
+# compiled python files
+
+.pyc
