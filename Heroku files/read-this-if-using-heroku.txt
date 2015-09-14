@@ -1,0 +1,11 @@
+To put this bot on the cloud-service heroku you need the files in this folder.
+Move them out of this folder into the main folder (reddit_episode_bot).
+
+requirements - heroku reads this to automatically download all requirements mentioned
+runtime - heroku reads this to know which version of python to use
+Procfile - heroku reads this to know how to start the service
+
+Note that I have not succsessfully run this bot on Heroku yet, so I can't guarantee that it will work.
+
+https://www.heroku.com
+https://devcenter.heroku.com/categories/python

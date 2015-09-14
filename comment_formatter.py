@@ -1,7 +1,7 @@
 __author__ = 'Caleb'
 
 import omdb_requester
-import postParser
+import post_parser
 import commentparser
 import netflix_requester
 from json import load
@@ -11,29 +11,38 @@ with open("info/subreddits.txt") as file:
     subreddit_to_show = load(file) # dictionary [subreddit name] = tv show
 bot_disclaimer = "------\n" \
                  "^^I'm ^^a ^^bot ^^that ^^gives ^^info ^^on ^^shows. " \
-                 "^^| ^^[message](http://www.reddit.com/message/compose?to=the_episode_bot) ^^me ^^if ^^there's ^^an ^^issue. " \
-                 "^^| ^^[about](https://github.com/Almenon/reddit_episode_bot)"
+                 "^^| ^^[message](http://www.reddit.com/message/compose?to=the_episode_bot) ^^me " \
+                 "^^if ^^there's ^^an ^^issue. ^^| ^^[about](https://github.com/Almenon/reddit_episode_bot)"
+# formatting for bot_disclaimer thanks to wikipediacitationbot
 
 
-def format_comment(title, subreddit, post):
+def format_comment(request, subreddit, post):
+    """
+    :param request: comment text or post title
+    :param subreddit: PRAW subreddit object or name of subreddit (without the /r/)
+    :param post: True if request is a post, False otherwise
+    :return: a paragraph of info and links about the episode, formatted for Reddit
+    :except: if any of the sub-modules called raise an exception it passes right through this module
+    """
 
     global subreddit_to_show
     global bot_disclaimer
     released = True
 
     if post:
-        parsedcomment = postParser.parse(title)
+        parsedcomment = post_parser.parse(request)
         season, episode = parsedcomment
         show = subreddit_to_show['/r/' + str(subreddit).lower()]
 
     else:
-        parsedcomment = commentparser.parse(title)
+        parsedcomment = commentparser.parse(request)
         show, season, episode = parsedcomment
         if show is None:
             show = subreddit_to_show['/r/' + str(subreddit).lower()]
 
     episode_info = omdb_requester.get_info(show, season, episode)
-    answer = "###[{title}](http://www.imdb.com/title/{id})\n\n".format(title=episode_info['Title'], id=episode_info['imdbID'])
+    answer = "###[{request}](http://www.imdb.com/request/{id})\n\n".format(
+        title=episode_info['Title'], id=episode_info['imdbID'])
     if episode_info["Plot"] != "N/A":
         answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
     if episode_info['Year'].isdigit() and int(episode_info['Year']) > 2015:
