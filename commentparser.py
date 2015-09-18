@@ -10,6 +10,8 @@ regex = compile(r"(?:\/u\/the_episode_bot[ ,:]*(\S+(?:\ \S+\b)*)[ ,]+)?"  # bot'
                 r"(?:s|e)[a-s]*\ *?(\d+)")   # season/episode
 # example match:  /u/the_episode_bot pokemon S01_E06
 # may be faster to look for season/episode or episode/season seperately
+# full regex: (for convenient copy):
+# (?:\/u\/the_episode_bot[ ,:]*(\S+(?:\ \S+\b)*)[ ,]+)?(s|e)[a-s]*\ *?(\d+)[\ ,_\[\]\-x]*(?:s|e)[a-s]*\ *?(\d+)
 # todo: construct regex test suite with all the post titles so far
 
 class ParseError(Exception):

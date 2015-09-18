@@ -4,7 +4,7 @@ import praw
 # http://praw.readthedocs.org
 from time import time
 import comment_formatter
-import postParser
+import post_parser
 import commentparser
 import omdb_requester
 from requests.exceptions import ConnectionError
@@ -33,19 +33,14 @@ r.login('the_episode_bot', password, disable_warning=True)
 bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
 # see https://www.reddit.com/r/Bottiquette/wiki/robots_txt_json
 restricted_subreddits = loads(bottiquette.content_md)
-restricted_subreddits = restricted_subreddits["disallowed"] + restricted_subreddits["posts-only"] + restricted_subreddits["permission"]
+restricted_subreddits = restricted_subreddits["disallowed"] + \
+                        restricted_subreddits["posts-only"] + \
+                        restricted_subreddits["permission"]
 
 subreddits = [r.get_subreddit("arrow"), r.get_subreddit("bojackhorseman"), r.get_subreddit("orangeisthenewblack")]
 
 with open("info/time.txt") as file:
     last_checked = load(file)
-
-
-bot_disclaimer = "------\n" \
-                 "^^I'm ^^a ^^bot ^^that ^^gives ^^info ^^on ^^shows. " \
-                 "^^| ^^[message](http://www.reddit.com/message/compose?to=the_episode_bot) ^^me ^^if ^^there's ^^an ^^issue. " \
-                 "^^| ^^[about](https://github.com/Almenon/reddit_episode_bot)"
-# formatting for bot_disclaimer thanks to wikipediacitationbot
 
 # todo:  try to avoid repeating code in post-checking and comment-checking
 # problem is their code is slightly different:
@@ -78,7 +73,7 @@ while True:
                     # send error message to me
                     r.send_message("Almenon", "epiosdebot error", submission.permalink + '\n\n' + str(error_msg))
                     logging.warning(str(error_msg))
-                except postParser.ParseError as error_msg:
+                except post_parser.ParseError as error_msg:
                     logging.warning(str(error_msg))
 
         last_checked = time()
@@ -142,7 +137,8 @@ while True:
         with open("info/time.txt", 'w') as file:
             file.write(str(last_checked))
         sleep(1200)  # sleep for 20 min
-    # todo: catch error if internet connection goes offline http://stackoverflow.com/questions/22851609/python-errno-11001-getaddrinfo-failed
+    # todo: catch error if internet connection goes offline
+    # http://stackoverflow.com/questions/22851609/python-errno-11001-getaddrinfo-failed
     # requests.exceptions.ConnectionError: ('Connection aborted.', gaierror(11001, 'getaddrinfo failed'))
 
     logging.info("sleeping for 3 minutes")

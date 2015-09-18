@@ -41,8 +41,8 @@ def format_comment(request, subreddit, post):
             show = subreddit_to_show['/r/' + str(subreddit).lower()]
 
     episode_info = omdb_requester.get_info(show, season, episode)
-    answer = "###[{request}](http://www.imdb.com/request/{id})\n\n".format(
-        title=episode_info['Title'], id=episode_info['imdbID'])
+    answer = "###[{title}](http://www.imdb.com/request/{id})\n\n".format(
+                title=episode_info['Title'], id=episode_info['imdbID'])
     if episode_info["Plot"] != "N/A":
         answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
     if episode_info['Year'].isdigit() and int(episode_info['Year']) > 2015:
@@ -68,4 +68,4 @@ def format_comment(request, subreddit, post):
 
 # testing:
 
-#print(format_comment("what_spanish_line_does_flaca_say_in so2eo5/","orangeisthenewblack",True))
+print(format_comment("i_just_ended s1e9 and_holy_shit_man/","orangeisthenewblack",True))
