@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level="DEBUG") # set level to INFO to get rid of debug messages
 
 regex = compile(r"\b(s|e)[a-s]*\ *?(\d+)"  # season or episode
-                r"[\ ,_\[\]\-x]*"        # followed by optional seperator
+                r"[\: ,_\[\]\-x]*"        # followed by optional seperator
                 r"(?:s|e)[a-s]*\ *?(\d+)")   # season/episode
 
 
