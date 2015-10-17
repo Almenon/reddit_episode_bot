@@ -49,6 +49,10 @@ def get_netflix_id(title):
     if 'error' not in parsed_json:
         netflix_link = netflix_url + str(parsed_json['show_id'])
         logging.info(netflix_link)
+        try:
+            urlopen(netflix_link) # make sure link works
+        except error.URLError as e:
+            raise CustomError("netflix link is incorrect: " + e.msg + ' ' + e.code)
         return netflix_link
     else:
         raise CustomError("Netflix roulette returned error in json: \n" + str(parsed_json) + '\n' + url)
