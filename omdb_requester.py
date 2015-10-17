@@ -17,8 +17,8 @@ class CustomError(Exception):
 def get_info(show='Game of thrones', season=1, episode=1):
     """
     :param show: string
-    :param season: number
-    :param episode: number
+    :param season: whole number
+    :param episode: whole number
     :return: formatted String with information about the show.
     :raises: CustomError if show is not in omdb or omdb is down
     """
@@ -31,11 +31,11 @@ def get_info(show='Game of thrones', season=1, episode=1):
         data = urlopen(base + post_request)
         # url looks like this:
         # http://www.omdbapi.com/?t=Game of Thrones&Season=1&Episode=1
-    except (error.HTTPError, error.URLError) as e:
+    except error.URLError as e:
         raise CustomError("There was an error when getting data from omdbapi.  "
                           "Possibly the site is offline: error code " + str(e.code))
         # 400 or 404 error indicates site is offline.
-        # 403 indicates >?????
+        # 403 indicates Forbidden
 
     # PARSE JSON & return requested data
     # thanks to http://stackoverflow.com/questions/6541767
@@ -45,6 +45,10 @@ def get_info(show='Game of thrones', season=1, episode=1):
     logging.info("JSON: " + str(parsed_json))
     if len(parsed_json) == 2:  # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
         raise CustomError(base+post_request + " returns error.  That episode or show is not in the database")
+    try:
+        urlopen("http://www.imdb.com/title/" + parsed_json['imdbID']) # verify imdb is correct
+    except error.URLError as e:
+        raise CustomError("imdb link is incorrect: " + e.msg + ' ' + e.code)
     return parsed_json
 
 
