@@ -2,14 +2,13 @@ __author__ = 'Almenon'
 
 import praw
 # http://praw.readthedocs.org
-from time import time
+from time import time,sleep,localtime
 import comment_formatter
 import post_parser
 import commentparser
 import omdb_requester
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
-from time import sleep
 from json import loads, load
 import logging
 
@@ -37,10 +36,19 @@ restricted_subreddits = restricted_subreddits["disallowed"] + \
                         restricted_subreddits["posts-only"] + \
                         restricted_subreddits["permission"]
 
-subreddits = [r.get_subreddit("arrow"), r.get_subreddit("bojackhorseman"), r.get_subreddit("orangeisthenewblack")]
+subreddits = [r.get_subreddit("bojackhorseman"), r.get_subreddit("orangeisthenewblack")]
 
 with open("info/time.txt") as file:
     last_checked = load(file)
+num_posts = {
+    str(subreddits[0]): 0,
+    str(subreddits[1]): 0
+}
+post_limit = { # limit per day
+    str(subreddits[0]): 4,
+    str(subreddits[1]): 4
+}
+last_day = localtime().tm_mday
 
 # todo:  try to avoid repeating code in post-checking and comment-checking
 # problem is their code is slightly different:
@@ -66,6 +74,9 @@ while True:
                     print("analyzing " + submission.permalink)
                     answer = comment_formatter.format_comment(submission.title, submission.subreddit, post=True)
                     submission.add_comment(answer)
+                    num_posts[str(subreddit)] += 1
+                    if num_posts[str(subreddit)] == post_limit[str(subreddit)]:
+                        sleep(24-localtime().tm_hour)  # sleep rest of day
                     logging.info("bot commented at " + submission.permalink)
                     print("bot commented at " + submission.permalink)
 
@@ -81,6 +92,12 @@ while True:
         # r.get_subreddit("name",place_holder=id) to get content newer than id
         with open("info/time.txt", 'w') as file:
             file.write(str(last_checked))
+
+        # reset post limits each new day
+        if localtime().tm_mday != last_day:
+            for key in num_posts: num_posts[key] = 0
+            last_day = localtime().tm_mday
+
 
         for message in messages:
             sleep(2)
