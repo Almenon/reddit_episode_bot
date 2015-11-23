@@ -50,14 +50,9 @@ post_limit = { # limit per day
 }
 last_day = localtime().tm_mday
 
-# todo:  try to avoid repeating code in post-checking and comment-checking
-# problem is their code is slightly different:
-# comment errors send message to both author and me, instead of just me
-# comment uses .reply rather than .add_comment
 
 while True:
 
-    # see https://www.reddit.com/r/redditdev/comments/3h3hmm
     try:
         messages = r.get_unread()
 
@@ -100,7 +95,6 @@ while True:
 
 
         for message in messages:
-            sleep(2)
             try:
                 print("message: " + message.body)
                 if message.subreddit in restricted_subreddits:
@@ -108,8 +102,6 @@ while True:
                                    "episodebot can't reply to a comment in a restricted subreddit")
                     message.mark_as_read()
                     continue
-                # if message.subreddit.description.find(
-                #   needs_spoiler = True
                 try:
                     answer = comment_formatter.format_comment(message.body, message.subreddit, post=False)
                 except KeyError:
@@ -124,39 +116,28 @@ while True:
                 print("bot replied to a comment")
             except (commentparser.ParseError, omdb_requester.CustomError) as error_msg:
                 # send error message to me and commenter
-                try:
-                    # todo: figure out why messages never have a link attached to them
-                    logging.warning(str(error_msg) + '\n' + message.link_url+message.id)
-                    r.send_message("Almenon", "episodebot error", message.link_url+message.id + '\n\n' + str(error_msg))
+                try: # if message is comment reply add link to comment
+                    logging.warning(str(error_msg) + '\n' + message.permalink)
+                    r.send_message("Almenon", "episodebot error", str(error_msg) + '\n\n' + message.permalink)
                 except AttributeError:
-                    logging.warning(str(error_msg) + "\nmessage: " + str(message))
+                    message_link = "https://www.reddit.com/message/messages/" + message.id
+                    logging.warning(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
                     r.send_message("Almenon", "episodebot error", str(message) + '\n\n' + str(error_msg))
 
             message.mark_as_read()
 
-    # todo: use logging.exception?
     except praw.errors.PRAWException as e:
-        logging.warning(e)  # nothing will be printed: https://github.com/praw-dev/praw/issues/491
-        logging.warning(vars(e))  # temporary workaround
+        logging.exception(e)
         last_checked = time()
         with open("info/time.txt", 'w') as file:
             file.write(str(last_checked))
-        try:
-            logging.warning("HTTP error code: " + str(e._raw.status_code))
-        except AttributeError:
-            pass
     except (ConnectionError, ReadTimeout) as e:
         print("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
-        logging.warning(e)
-        # logging.warning(vars(e))  # {'response': None, 'request': <PreparedRequest [GET]>}
-        # logging.warning(e._raw.status_code)  # todo: find out why this doesn't work (low importance)
+        logging.exception(e)
         last_checked = time()
         with open("info/time.txt", 'w') as file:
             file.write(str(last_checked))
         sleep(1200)  # sleep for 20 min
-    # todo: catch error if internet connection goes offline
-    # http://stackoverflow.com/questions/22851609/python-errno-11001-getaddrinfo-failed
-    # requests.exceptions.ConnectionError: ('Connection aborted.', gaierror(11001, 'getaddrinfo failed'))
 
     logging.info("sleeping for 3 minutes")
     print("sleeping")
