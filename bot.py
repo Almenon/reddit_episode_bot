@@ -27,7 +27,9 @@ with open("info/password.txt") as file:
     password = file.read()
     # password in text file so it's not available in public repository
 r.login('the_episode_bot', password, disable_warning=True)
-# todo: use Oauth instead of login because it will be deprecated soon
+# todo: use Oauth instead of login because it will be deprecated in March
+Superuser = 'Almenon'
+# user to send error messages too
 
 bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
 # see https://www.reddit.com/r/Bottiquette/wiki/robots_txt_json
@@ -49,7 +51,8 @@ post_limit = { # limit per day
     str(subreddits[1]): 4
 }
 last_day = localtime().tm_mday
-
+bad_comments = list(range(50))
+# store downvoted comments so i don't repeatedly warn myself of the same bad comment
 
 while True:
 
@@ -69,15 +72,18 @@ while True:
                     print("analyzing " + submission.permalink)
                     answer = comment_formatter.format_comment(submission.title, submission.subreddit, post=True)
                     submission.add_comment(answer)
-                    num_posts[str(subreddit)] += 1
-                    if num_posts[str(subreddit)] == post_limit[str(subreddit)]:
-                        sleep(24-localtime().tm_hour)  # sleep rest of day
                     logging.info("bot commented at " + submission.permalink)
                     print("bot commented at " + submission.permalink)
+                    num_posts[str(subreddit)] += 1
+                    if num_posts[str(subreddit)] == post_limit[str(subreddit)]:
+                        remaining_day = 60*60*(24-localtime().tm_hour)
+                        sleep(remaining_day)
+                        for key in num_posts: num_posts[key] = 0
+                        last_day = localtime().tm_mday
 
                 except omdb_requester.CustomError as error_msg:
                     # send error message to me
-                    r.send_message("Almenon", "epiosdebot error", submission.permalink + '\n\n' + str(error_msg))
+                    r.send_message(Superuser, "epiosdebot error", submission.permalink + '\n\n' + str(error_msg))
                     logging.warning(str(error_msg))
                 except post_parser.ParseError as error_msg:
                     logging.warning(str(error_msg))
@@ -92,6 +98,16 @@ while True:
         if localtime().tm_mday != last_day:
             for key in num_posts: num_posts[key] = 0
             last_day = localtime().tm_mday
+
+        # check if any comments are downvoted
+        user = r.get_user('the_episode_bot')
+        comments = user.get_comments(time='week')
+        for x in comments:
+            if x.id in bad_comments: continue
+            if x.score < 0:
+                bad_comments.insert(0,x.id)
+                bad_comments.pop()
+                r.send_message(Superuser,"downvoted comment alert")
 
 
         for message in messages:
@@ -118,11 +134,11 @@ while True:
                 # send error message to me and commenter
                 try: # if message is comment reply add link to comment
                     logging.warning(str(error_msg) + '\n' + message.permalink)
-                    r.send_message("Almenon", "episodebot error", str(error_msg) + '\n\n' + message.permalink)
+                    r.send_message(Superuser, "episodebot error", str(error_msg) + '\n\n' + message.permalink)
                 except AttributeError:
                     message_link = "https://www.reddit.com/message/messages/" + message.id
                     logging.warning(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
-                    r.send_message("Almenon", "episodebot error", str(message) + '\n\n' + str(error_msg))
+                    r.send_message(Superuser, "episodebot error", str(message) + '\n\n' + str(error_msg))
 
             message.mark_as_read()
 
