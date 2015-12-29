@@ -1,4 +1,4 @@
-__author__ = 'Almenon'
+﻿__author__ = 'Almenon'
 
 from urllib.request import urlopen
 from urllib import error
@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level="DEBUG")  # set level to INFO to get rid of debug messages
 
 netflix_links = { # hardcoded links for important subreddits in case netflix website fails
-    'bojack horseman': 'http://www.netflix.com/title/80019503',
+    'bojack horseman': 'http://www.netflix.com/title/70300800',
     'orange is the new black': 'http://www.netflix.com/title/70242311'
 }
 netflix_url = "http://www.netflix.com/title/"
@@ -68,8 +68,7 @@ def get_netflix_link(title):
     else:
         raise CustomError("Netflix roulette returned error in json: \n" + str(parsed_json) + '\n' + url)
 
-print(get_netflix_link("bojack horseman")) # uncomment this to test
-    # todo: figure out why this file can't be run on its own (low importance)
+# print(get_netflix_link("bojack horseman")) # uncomment this to test
     # SyntaxError: Non-UTF-8 code starting with '\xe1' in file C:/dev/PycharmProjects/reddit_episode_bot/netflix_requester.py
     # on line 13, but no encoding declared; see http://python.org/dev/peps/pep-0263/ for details
 
