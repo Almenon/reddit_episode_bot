@@ -7,8 +7,6 @@ import comment_formatter
 import post_parser
 import commentparser
 import omdb_requester
-from requests.exceptions import ConnectionError
-from requests.exceptions import ReadTimeout
 from json import loads, load
 import logging
 
@@ -54,126 +52,86 @@ last_day = localtime().tm_mday
 bad_comments = list(range(50))
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
 
-while True:
+def scan():
+    """"
+    scans replies, mentions, messages, and configured subreddits.
+    Replies if keyphrase detected.  Alerts dev if there are any issues.
+    :raises: Hopefully nothing, unless there is a connection problem
+    """
 
-    try:
-        messages = r.get_unread()
+    global num_posts
+    global bad_comments
 
-        for subreddit in subreddits:
+    for subreddit in subreddits:
 
-            submissions = subreddit.get_new()
+        if num_posts[str(subreddit)] >= post_limit[str(subreddit)]:
+            continue
 
-            for submission in submissions:
-                try:
-                    if submission.created_utc < last_checked:
-                        logging.info("no new posts in " + str(submission.subreddit))
-                        break
-                    logging.info("analyzing " + submission.permalink)
-                    print("analyzing " + submission.permalink)
-                    answer = comment_formatter.format_comment(submission.title, submission.subreddit, post=True)
-                    submission.add_comment(answer)
-                    logging.info("bot commented at " + submission.permalink)
-                    print("bot commented at " + submission.permalink)
-                    num_posts[str(subreddit)] += 1
-                    if num_posts[str(subreddit)] == post_limit[str(subreddit)]:
-                        remaining_day = 60*60*(24-localtime().tm_hour)
-                        sleep(remaining_day)
-                        for key in num_posts: num_posts[key] = 0
-                        last_day = localtime().tm_mday
+        submissions = subreddit.get_new()
 
-                except omdb_requester.CustomError as error_msg:
-                    # send error message to me
-                    r.send_message(Superuser, "epiosdebot error", submission.permalink + '\n\n' + str(error_msg))
-                    logging.warning(str(error_msg))
-                except post_parser.ParseError as error_msg:
-                    logging.warning(str(error_msg))
-
-        last_checked = time()
-        # another approach would be to save newest submission id
-        # r.get_subreddit("name",place_holder=id) to get content newer than id
-        with open("info/time.txt", 'w') as file:
-            file.write(str(last_checked))
-
-        # reset post limits each new day
-        if localtime().tm_mday != last_day:
-            for key in num_posts: num_posts[key] = 0
-            last_day = localtime().tm_mday
-
-        # check if any comments are downvoted
-        user = r.get_user('the_episode_bot')
-        comments = user.get_comments(time='week')
-        for x in comments:
-            if x.id in bad_comments: continue
-            if x.score < 0:
-                bad_comments.insert(0,x.id)
-                bad_comments.pop()
-                r.send_message(Superuser,"downvoted comment alert")
-
-
-        for message in messages:
+        for submission in submissions:
             try:
-                print("message: " + message.body)
-                if message.subreddit in restricted_subreddits:
-                    r.send_message(message.author, "episodebot could not reply",
-                                   "episodebot can't reply to a comment in a restricted subreddit")
-                    message.mark_as_read()
-                    continue
-                try:
-                    answer = comment_formatter.format_comment(message.body, message.subreddit, post=False)
-                except KeyError:
-                    r.send_message(message.author, "Episode bot could not reply",
-                                   "Please specify a show. If you are in the show's subreddit, "
-                                   "you shouldn't need to specify it. Message /u/almenon to "
-                                   "add the subreddit to the TV-related subreddit database")
-                    logging.info("a subreddit was not listed in database")
-                    message.mark_as_read()
-                    continue
-                message.reply(answer)
-                print("bot replied to a comment")
-            except (commentparser.ParseError, omdb_requester.CustomError) as error_msg:
-                # send error message to me and commenter
-                try: # if message is comment reply add link to comment
-                    logging.warning(str(error_msg) + '\n' + message.permalink)
-                    r.send_message(Superuser, "episodebot error", str(error_msg) + '\n\n' + message.permalink)
-                except AttributeError:
-                    message_link = "https://www.reddit.com/message/messages/" + message.id
-                    logging.warning(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
-                    r.send_message(Superuser, "episodebot error", str(message) + '\n\n' + str(error_msg))
+                if submission.created_utc < last_checked:
+                    logging.info("no new posts in " + str(submission.subreddit))
+                    break
+                logging.info("analyzing " + submission.permalink)
+                print("analyzing " + submission.permalink)
+                answer = comment_formatter.format_comment(submission.title, submission.subreddit, post=True)
+                submission.add_comment(answer)
+                logging.info("bot commented at " + submission.permalink)
+                print("bot commented at " + submission.permalink)
+                num_posts[str(subreddit)] += 1
 
-            message.mark_as_read()
+            except omdb_requester.CustomError as error_msg:
+                # send error message to me
+                r.send_message(Superuser, "epiosdebot error", submission.permalink + '\n\n' + str(error_msg))
+                logging.warning(str(error_msg))
+            except post_parser.ParseError as error_msg:
+                logging.warning(str(error_msg))
 
-    except praw.errors.PRAWException as e:
-        logging.exception(e)
-        last_checked = time()
-        with open("info/time.txt", 'w') as file:
-            file.write(str(last_checked))
-    except (ConnectionError, ReadTimeout) as e:
-        print("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
-        logging.exception(e)
-        last_checked = time()
-        with open("info/time.txt", 'w') as file:
-            file.write(str(last_checked))
-        sleep(1200)  # sleep for 20 min
+    # check for summons in replies / messages / mentions
+    messages = r.get_unread()
+    for message in messages:
+        try:
+            print("message: " + message.body)
+            if message.subreddit in restricted_subreddits:
+                r.send_message(message.author, "episodebot could not reply",
+                               "episodebot can't reply to a comment in a restricted subreddit")
+                message.mark_as_read()
+                continue
+            try:
+                answer = comment_formatter.format_comment(message.body, message.subreddit, post=False)
+            except KeyError:
+                r.send_message(message.author, "Episode bot could not reply",
+                               "Please specify a show. If you are in the show's subreddit, "
+                               "you shouldn't need to specify it. Message /u/almenon to "
+                               "add the subreddit to the TV-related subreddit database")
+                logging.info("a subreddit was not listed in database")
+                message.mark_as_read()
+                continue
+            message.reply(answer)
+            print("bot replied to a comment")
+        except (commentparser.ParseError, omdb_requester.CustomError) as error_msg:
+            # send error message to me and commenter
+            try: # if message is comment reply add link to comment
+                logging.warning(str(error_msg) + '\n' + message.permalink)
+                r.send_message(Superuser, "episodebot error", str(error_msg) + '\n\n' + message.permalink)
+            except AttributeError:
+                message_link = "https://www.reddit.com/message/messages/" + message.id
+                logging.warning(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
+                r.send_message(Superuser, "episodebot error", str(message) + '\n\n' + str(error_msg))
 
-    logging.info("sleeping for 3 minutes")
-    print("sleeping")
-    sleep(180)  # limit is 2 seconds. 30 is polite time.
+        message.mark_as_read()
 
-
-"""
-LINKS AND NOTES:
-
-for finding subreddits:
-https://www.reddit.com/r/television
-http://tv-subreddits.wikidot.com/ (TV subreddits masterlist)
-    out of date but still comprehensive
-https://www.reddit.com/r/TVSubreddits/top/ for new TV subreddits
-subreddits should be compatible with omdb and netflixroulette API
-
-OAuth Links:
-https://github.com/reddit/reddit/wiki/OAuth2
-http://praw.readthedocs.org/en/latest/pages/oauth.html
-
-reddit bots & utilities: https://github.com/voussoir/reddit
-auto-wiki bot https://github.com/acini/autowikibot-py
-"""
+    # check if any comments are downvoted
+    user = r.get_redditor('the_episode_bot')
+    comments = user.get_comments(time='week') # week selector does not work
+    for x in comments:
+        # dont analyze comments more than a week old
+        if x.edited<(last_checked-604800):
+            break
+        if x.id in bad_comments: continue
+        if x.score < 0:
+            bad_comments.insert(0,x.id)
+            bad_comments.pop()
+            r.send_message(Superuser,"downvoted comment alert",str(x))
