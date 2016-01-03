@@ -2,12 +2,11 @@ __author__ = 'Almenon'
 
 import praw
 # http://praw.readthedocs.org
-from time import time,sleep,localtime
 import comment_formatter
 import post_parser
 import commentparser
 import omdb_requester
-from json import loads, load
+from json import loads
 import logging
 
 ####################  SETUP   ######################
@@ -26,7 +25,7 @@ with open("info/password.txt") as file:
     # password in text file so it's not available in public repository
 r.login('the_episode_bot', password, disable_warning=True)
 # todo: use Oauth instead of login because it will be deprecated in March
-Superuser = 'Almenon'
+Superuser = 'calsem'
 # user to send error messages too
 
 bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
@@ -38,8 +37,6 @@ restricted_subreddits = restricted_subreddits["disallowed"] + \
 
 subreddits = [r.get_subreddit("bojackhorseman"), r.get_subreddit("orangeisthenewblack")]
 
-with open("info/time.txt") as file:
-    last_checked = load(file)
 num_posts = {
     str(subreddits[0]): 0,
     str(subreddits[1]): 0
@@ -48,14 +45,14 @@ post_limit = { # limit per day
     str(subreddits[0]): 4,
     str(subreddits[1]): 4
 }
-last_day = localtime().tm_mday
 bad_comments = list(range(50))
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
 
-def scan():
+def scan(last_checked):
     """"
     scans replies, mentions, messages, and configured subreddits.
     Replies if keyphrase detected.  Alerts dev if there are any issues.
+    :param: last scan time
     :raises: Hopefully nothing, unless there is a connection problem
     """
 
@@ -128,7 +125,7 @@ def scan():
     comments = user.get_comments(time='week') # week selector does not work
     for x in comments:
         # dont analyze comments more than a week old
-        if x.edited<(last_checked-604800):
+        if x.created_utc<(last_checked-604800):
             break
         if x.id in bad_comments: continue
         if x.score < 0:
