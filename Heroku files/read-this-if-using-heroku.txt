@@ -5,7 +5,21 @@ requirements - heroku reads this to automatically download all requirements ment
 runtime - heroku reads this to know which version of python to use
 Procfile - heroku reads this to know how to start the service
 
-Note that I have not succsessfully run this bot on Heroku yet, so I can't guarantee that it will work.
-
 https://www.heroku.com
 https://devcenter.heroku.com/categories/python
+
+Setting up heroku:
+1. install heroku toolbelt and git
+2. make an heroku account
+3. heroku login
+4. heroku create
+5. git push heroku master
+
+heroku ps:scale worker=1 to run it
+heroku ps:scale worker=0 to stop running
+heroku ps to inspect worker status
+
+Note that heroku does not save the state of files inbetween sessions
+This means that saving time to time.txt does not work.
+Instead, you have to save it to a database.  I suggest mongodb, which is why pymongo is listed as a requirement.
+You can install the heroku addon MongoLab to use a free mongo database.
