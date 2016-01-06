@@ -17,7 +17,8 @@ logging.basicConfig(level="INFO",
 # todo: fix logging (it's not logging to the file anywhere!)
 logging.info("Bot started")
 # set level to INFO to get rid of debug messages
-user_agent = "python script for episode information upon username mention or reply.  alpha v1.1 by Almenon"
+user_agent = "python script for episode information upon request or activated by keyphrase in participating subreddits." \
+             "alpha v1.1 by Almenon"
 # string should not contain keyword bot
 r = praw.Reddit(user_agent=user_agent)
 with open("info/password.txt") as file:
@@ -25,7 +26,7 @@ with open("info/password.txt") as file:
     # password in text file so it's not available in public repository
 r.login('the_episode_bot', password, disable_warning=True)
 # todo: use Oauth instead of login because it will be deprecated in March
-Superuser = '***REMOVED***'
+Superuser = 'Almenon'
 # user to send error messages too
 
 bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
@@ -35,7 +36,8 @@ restricted_subreddits = restricted_subreddits["disallowed"] + \
                         restricted_subreddits["posts-only"] + \
                         restricted_subreddits["permission"]
 
-subreddits = [r.get_subreddit("bojackhorseman"), r.get_subreddit("orangeisthenewblack")]
+subreddits = ["bojackhorseman","orangeisthenewblack"]
+subreddits = [r.get_subreddit(s) for s in subreddits]
 
 num_posts = {
     str(subreddits[0]): 0,
@@ -48,7 +50,7 @@ post_limit = { # limit per day
 bad_comments = list(range(50))
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
 
-def scan(last_checked):
+def scan(last_scan):
     """"
     scans replies, mentions, messages, and configured subreddits.
     Replies if keyphrase detected.  Alerts dev if there are any issues.
@@ -68,7 +70,7 @@ def scan(last_checked):
 
         for submission in submissions:
             try:
-                if submission.created_utc < last_checked:
+                if submission.created_utc < last_scan:
                     logging.info("no new posts in " + str(submission.subreddit))
                     break
                 logging.info("analyzing " + submission.permalink)
@@ -125,7 +127,7 @@ def scan(last_checked):
     comments = user.get_comments(time='week') # week selector does not work
     for x in comments:
         # dont analyze comments more than a week old
-        if x.created_utc<(last_checked-604800):
+        if x.created_utc<(last_scan-604800):
             break
         if x.id in bad_comments: continue
         if x.score < 0:
