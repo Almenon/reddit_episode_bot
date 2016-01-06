@@ -108,4 +108,5 @@ password.txt
 
 # compiled python files
 
-.pyc
+*.pyc
+info/time.txt
