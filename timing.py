@@ -13,17 +13,20 @@ last_day = localtime().tm_mday
 with open("info/time.txt") as file:
     last_scan = load(file)
 
+
+def save_scan_time():
+    global last_scan
+    last_scan = time()
+    with open("info/time.txt", 'w') as file:
+        file.write(str(last_scan))
+        # another approach would be to save newest submission id
+        # r.get_subreddit("name",place_holder=id) to get content newer than id
+
 while True:
     try:
         # scan posts / mentions / messages / replies
         bot.scan(last_scan)
-
-        # save time
-        last_scan = time()
-        # another approach would be to save newest submission id
-        # r.get_subreddit("name",place_holder=id) to get content newer than id
-        with open("info/time.txt", 'w') as file:
-            file.write(str(last_scan))
+        save_scan_time()
 
         # reset post limits each new day
         if localtime().tm_mday != last_day:
@@ -33,18 +36,13 @@ while True:
     except praw.errors.PRAWException as e:
         logging.exception(e)
         logging.info("see http://praw.readthedocs.org/en/stable/pages/exceptions.html")
-        bot.last_checked = time()
-        with open("info/time.txt", 'w') as file:
-            file.write(str(last_scan))
+        save_scan_time()
         sleep(180)
     except (ConnectionError, ReadTimeout) as e:
-        print("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
         logging.exception(e)
-        bot.last_checked = time()
-        with open("info/time.txt", 'w') as file:
-            file.write(str(last_scan))
+        logging.info("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
+        save_scan_time()
         sleep(1200)  # sleep for 20 min
 
     logging.info("sleeping for 3 minutes")
-    print("sleeping")
     sleep(180)  # limit is 2 seconds. 30 is polite time.
