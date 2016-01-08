@@ -14,9 +14,9 @@ logging.basicConfig(level="INFO",
                     filename="info/bot.log",
                     format='%(asctime)s %(module)s:%(levelname)s: %(message)s'
                     )
-# todo: fix logging (it's not logging to the file anywhere!)
+# todo: fix logging (it's not logging to the file anymore)
+# todo: stop praw debug logs from going to console
 logging.info("Bot started")
-# set level to INFO to get rid of debug messages
 user_agent = "python script for episode information upon request or activated by keyphrase in participating subreddits." \
              "alpha v1.1 by Almenon"
 # string should not contain keyword bot
@@ -39,14 +39,14 @@ restricted_subreddits = restricted_subreddits["disallowed"] + \
 subreddits = ["bojackhorseman","orangeisthenewblack"]
 subreddits = [r.get_subreddit(s) for s in subreddits]
 
-num_posts = {
-    str(subreddits[0]): 0,
-    str(subreddits[1]): 0
-}
-post_limit = { # limit per day
-    str(subreddits[0]): 4,
-    str(subreddits[1]): 4
-}
+num_posts = {}
+for s in subreddits:
+    num_posts[str(s)] = 0
+
+post_limit = {}
+for s in subreddits:
+    post_limit[str(s)] = 4
+
 bad_comments = list(range(50))
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
 
@@ -74,11 +74,9 @@ def scan(last_scan):
                     logging.info("no new posts in " + str(submission.subreddit))
                     break
                 logging.info("analyzing " + submission.permalink)
-                print("analyzing " + submission.permalink)
                 answer = comment_formatter.format_comment(submission.title, submission.subreddit, post=True)
-                submission.add_comment(answer)
+                #submission.add_comment(answer)
                 logging.info("bot commented at " + submission.permalink)
-                print("bot commented at " + submission.permalink)
                 num_posts[str(subreddit)] += 1
 
             except omdb_requester.CustomError as error_msg:
@@ -92,7 +90,6 @@ def scan(last_scan):
     messages = r.get_unread()
     for message in messages:
         try:
-            print("message: " + message.body)
             if message.subreddit in restricted_subreddits:
                 r.send_message(message.author, "episodebot could not reply",
                                "episodebot can't reply to a comment in a restricted subreddit")
@@ -109,7 +106,6 @@ def scan(last_scan):
                 message.mark_as_read()
                 continue
             message.reply(answer)
-            print("bot replied to a comment")
         except (commentparser.ParseError, omdb_requester.CustomError) as error_msg:
             # send error message to me and commenter
             try: # if message is comment reply add link to comment
