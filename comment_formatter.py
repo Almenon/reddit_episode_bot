@@ -32,13 +32,13 @@ def format_comment(request, subreddit, post):
     if post:
         parsedcomment = post_parser.parse(request)
         season, episode = parsedcomment
-        show = subreddit_to_show['/r/' + str(subreddit).lower()]
+        show = subreddit_to_show[str(subreddit).lower()]
 
     else:
         parsedcomment = commentparser.parse(request)
         show, season, episode = parsedcomment
         if show is None:
-            show = subreddit_to_show['/r/' + str(subreddit).lower()]
+            show = subreddit_to_show[str(subreddit).lower()]
 
     episode_info = omdb_requester.get_info(show, season, episode)
     answer = "###[{title}](http://www.imdb.com/title/{id})\n\n".format(
