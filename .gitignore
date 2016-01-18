@@ -102,11 +102,15 @@ crashlytics-build.properties
 # Custom ignore files
 # ===================
 
-# password file
+# confidential files
 
 password.txt
+mongodb_uri.txt
 
 # compiled python files
 
 *.pyc
+
+# misc
+
 info/time.txt
