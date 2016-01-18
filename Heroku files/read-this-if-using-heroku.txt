@@ -1,6 +1,7 @@
 To put this bot on the cloud-service heroku you need the files in this folder.
 Move them out of this folder into the main folder (reddit_episode_bot).
 Replace timing.py with heroku timing.py
+Update mongodb info to be compatible with your mongo database
 
 requirements - heroku reads this to automatically download all requirements mentioned
 runtime - heroku reads this to know which version of python to use
