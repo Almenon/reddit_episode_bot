@@ -26,7 +26,6 @@ with open("info/password.txt") as file:
     # password in text file so it's not available in public repository
 r.login('the_episode_bot', password, disable_warning=True)
 # todo: use Oauth instead of login because it will be deprecated in March
-Superuser = 'Almenon'
 # user to send error messages too
 
 bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
@@ -80,8 +79,6 @@ def scan(last_scan):
                 num_posts[str(subreddit)] += 1
 
             except omdb_requester.CustomError as error_msg:
-                # send error message to me
-                r.send_message(Superuser, "epiosdebot error", submission.permalink + '\n\n' + str(error_msg))
                 logging.warning(str(error_msg))
             except post_parser.ParseError as error_msg:
                 logging.warning(str(error_msg))
@@ -110,11 +107,9 @@ def scan(last_scan):
             # send error message to me and commenter
             try: # if message is comment reply add link to comment
                 logging.warning(str(error_msg) + '\n' + message.permalink)
-                r.send_message(Superuser, "episodebot error", str(error_msg) + '\n\n' + message.permalink)
             except AttributeError:
                 message_link = "https://www.reddit.com/message/messages/" + message.id
                 logging.warning(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
-                r.send_message(Superuser, "episodebot error", str(message) + '\n\n' + str(error_msg))
 
         message.mark_as_read()
 
@@ -129,4 +124,4 @@ def scan(last_scan):
         if x.score < 0:
             bad_comments.insert(0,x.id)
             bad_comments.pop()
-            r.send_message(Superuser,"downvoted comment alert",str(x))
+            logging.warning("downvoted comment alert")
