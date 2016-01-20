@@ -8,7 +8,6 @@ runtime - heroku reads this to know which version of python to use
 Procfile - heroku reads this to know how to start the service
 heroku timing - similar to regular timing file, except it saves the time in a mongo database
 (heroku does not save state of files inbetween worker sessions so a database has to be used for storage)
-(I use the heroku addon MongoLab for the database)
 
 https://www.heroku.com
 https://devcenter.heroku.com/categories/python
@@ -24,3 +23,8 @@ Setting up heroku:
 heroku ps:scale worker=1 to run it
 heroku ps:scale worker=0 to stop running
 heroku ps to inspect worker status
+
+Setting up a mongo database:
+install Mongolab addon
+Create necesary data
+in cmd: heroku config:set mongodb_uri=youruri
