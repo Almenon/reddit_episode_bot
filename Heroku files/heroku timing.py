@@ -8,10 +8,9 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
 import logging
 from pymongo import MongoClient
+from os import environ
 
-with open('mongodb_uri.txt') as file:
-    MONGODB_URI = file.read()
-client = MongoClient(MONGODB_URI)
+client = MongoClient(environ['mongodb_uri'])
 db = client.heroku_m17k26m5
 saved_time = db.last_time # type: collection
 last_time = saved_time.find_one()['time']
