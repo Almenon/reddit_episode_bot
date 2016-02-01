@@ -41,7 +41,8 @@ def format_comment(request, subreddit, post):
             show = subreddit_to_show[str(subreddit).lower()]
 
     episode_info = omdb_requester.get_info(show, season, episode)
-    answer = "###[{title}](http://www.imdb.com/title/{id})\n\n".format(
+    answer = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
+             "###[{title}](http://www.imdb.com/title/{id})\n\n".format(
                 title=episode_info['Title'], id=episode_info['imdbID'])
     if episode_info["Plot"] != "N/A":
         answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
@@ -72,3 +73,5 @@ def format_comment(request, subreddit, post):
 # testing:
 
 # print(format_comment("i_just_ended s1e9 and_holy_shit_man/","orangeisthenewblack",True))
+
+# print(format_comment("Summoning /u/the_episode_bot arrow s01e03","episode_bot",post=False))
