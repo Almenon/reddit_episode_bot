@@ -6,9 +6,9 @@ from json import loads
 import logging
 logging.basicConfig(level="DEBUG")  # set level to INFO to get rid of debug messages
 
-netflix_links = { # hardcoded links for important subreddits in case netflix website fails
+hardcoded_links = { # hardcoded links for important subreddits in case netflix website fails
     'bojack horseman': 'http://www.netflix.com/title/70300800',
-    'orange is the new black': 'http://www.netflix.com/title/70242311'
+    'orange is the new black': 'http://www.netflix.com/title/70242311',
 }
 netflix_url = "http://www.netflix.com/title/"
 api_url = 'http://netflixroulette.net/api/api.php?title='
@@ -27,12 +27,17 @@ class CustomError(Exception):
 def get_netflix_link(title):
     """
     :param title: of a show
-    :return: link to instant watch show on Netflix.  None if show is not listed in netflixroulette
-    :raise:  CustomError if the website is down, JSON has the word error, or link doesn't work
+    :return: link to instant watch show on Netflix.  None if show is not listed in netflixroulette or hardcoded in
+    :raise:  CustomError if the website is down or JSON has the word error or link doesn't work
     """
 
     for accent, no_accent in zip(accent_letters, english_letters):
         title = title.replace(accent, no_accent)
+    if title in hardcoded_links:
+        return hardcoded_links[title]
+
+    # if link is not hardcoded in we go on to check netflixroulette
+
     post_request = title.replace(' ', '+')
     url = api_url + post_request
     logging.info(url)
@@ -45,12 +50,7 @@ def get_netflix_link(title):
             return None
         else:  # yay for syntactic sugar
             if e.code == 522: logging.info("connection timed out")
-            if title in netflix_links:
-                logging.warning("HTTP error in netflix_requester:" + str(e.code) + '\n' + url)
-                return netflix_links[title]
-            else:
-                logging.info(title + ' netflix link is not hardcoded in')
-                raise CustomError("HTTP error in netflix_requester: " + str(e.code) + '\n' + url)
+            raise CustomError("HTTP error in netflix_requester: " + str(e.code) + '\n' + url)
 
     json_data = data.read().decode('utf-8')
     logging.debug("json data:" + json_data)
@@ -69,8 +69,6 @@ def get_netflix_link(title):
         raise CustomError("Netflix roulette returned error in json: \n" + str(parsed_json) + '\n' + url)
 
 # print(get_netflix_link("bojack horseman")) # uncomment this to test
-    # SyntaxError: Non-UTF-8 code starting with '\xe1' in file C:/dev/PycharmProjects/reddit_episode_bot/netflix_requester.py
-    # on line 13, but no encoding declared; see http://python.org/dev/peps/pep-0263/ for details
 
 # thanks to http://netflixroulette.net/api/
 # function modified from get_netflix_id in NetflixRouletteAPI wrapper
