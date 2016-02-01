@@ -35,7 +35,7 @@ restricted_subreddits = restricted_subreddits["disallowed"] + \
                         restricted_subreddits["posts-only"] + \
                         restricted_subreddits["permission"]
 
-subreddits = ["bojackhorseman","orangeisthenewblack"]
+subreddits = ["bojackhorseman","orangeisthenewblack","gravityfalls"]
 subreddits = [r.get_subreddit(s) for s in subreddits]
 
 num_posts = {}
@@ -74,7 +74,7 @@ def scan(last_scan):
                     break
                 logging.info("analyzing " + submission.permalink)
                 answer = comment_formatter.format_comment(submission.title, submission.subreddit, post=True)
-                #submission.add_comment(answer)
+                submission.add_comment(answer)
                 logging.info("bot commented at " + submission.permalink)
                 num_posts[str(subreddit)] += 1
 
