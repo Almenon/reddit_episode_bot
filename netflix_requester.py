@@ -9,6 +9,7 @@ logging.basicConfig(level="DEBUG")  # set level to INFO to get rid of debug mess
 hardcoded_links = { # hardcoded links for important subreddits in case netflix website fails
     'bojack horseman': 'http://www.netflix.com/title/70300800',
     'orange is the new black': 'http://www.netflix.com/title/70242311',
+    'my little pony': 'http://www.netflix.com/title/70234440',
 }
 netflix_url = "http://www.netflix.com/title/"
 api_url = 'http://netflixroulette.net/api/api.php?title='

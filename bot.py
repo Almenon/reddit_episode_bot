@@ -35,7 +35,7 @@ restricted_subreddits = restricted_subreddits["disallowed"] + \
                         restricted_subreddits["posts-only"] + \
                         restricted_subreddits["permission"]
 
-subreddits = ["bojackhorseman","orangeisthenewblack","gravityfalls"]
+subreddits = ["bojackhorseman","orangeisthenewblack","gravityfalls","mylittlepony",]
 subreddits = [r.get_subreddit(s) for s in subreddits]
 
 num_posts = {}
