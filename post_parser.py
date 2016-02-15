@@ -6,7 +6,7 @@ logging.basicConfig(level="DEBUG") # set level to INFO to get rid of debug messa
 
 regex = compile(r"\b(s|e)[a-s]*\ *?(\d+)"  # season or episode
                 r"[\: ,_\[\]\-x]*"        # followed by optional seperator
-                r"(?:s|e)[a-s]*\ *?(\d+)")   # season/episode
+                r"(s|e)[a-s]*\ *?(\d+)")   # season/episode
 
 
 class ParseError(Exception):
@@ -21,19 +21,21 @@ def parse(request):
     season_episode = search(regex,request)
     if season_episode is None:
         raise ParseError("request does not contain correct format")
-    if season_episode.group(1) is 'e': # format is episode season
+    elif season_episode.group(1) is 'e' and season_episode.group(3) is 's':
         episode = season_episode.group(2)
-        season = season_episode.group(3)
-    else:  # format is season episode
+        season = season_episode.group(4)
+    elif season_episode.group(1) is 's' and season_episode.group(3) is 'e':
         season = season_episode.group(2)
-        episode = season_episode.group(3)
+        episode = season_episode.group(4)
+    else:  # s s or e e
+        raise ParseError("request does not contain correct format")
 
     return season, episode
 
 # testing
 
 # try:
-#     answer = parse("1 :: Beers in S01E05")
+#     answer = parse("yo man e3s2")
 #     print(answer)
 # except ParseError as e:
 #     print(e)
