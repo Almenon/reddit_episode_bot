@@ -46,8 +46,11 @@ def format_comment(request, subreddit, post):
                 title=episode_info['Title'], id=episode_info['imdbID'])
     if episode_info["Plot"] != "N/A":
         answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
-    if episode_info['Year'].isdigit() and int(episode_info['Year']) > 2015:
+    if episode_info['Year'].isdigit() and int(episode_info['Year']) > 2016:
         released = False
+    # hardcoding in year is problematic - I will likely forget to update in 2017
+    # todo: avoid or find some way to auto update
+    # possibly just remove released feature?
 
     for key in ('imdbRating', 'Released'):
         if episode_info[key] != 'N/A':
@@ -72,6 +75,6 @@ def format_comment(request, subreddit, post):
 
 # testing:
 
-# print(format_comment("i_just_ended s1e9 and_holy_shit_man/","orangeisthenewblack",True))
+# print(format_comment("Princess Luna From S2E3 Luna Eclipsed by daisymane","mylittlepony",True))
 
 # print(format_comment("Summoning /u/the_episode_bot arrow s01e03","episode_bot",post=False))
