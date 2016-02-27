@@ -1,6 +1,7 @@
 __author__ = 'Almenon'
 
 from urllib.request import urlopen
+from urllib.parse import quote
 from urllib.parse import urlencode
 from urllib import error
 from json import loads
@@ -23,14 +24,15 @@ def get_info(show='Game of thrones', season=1, episode=1):
     :raises: CustomError if show is not in omdb or omdb is down
     """
 
-    post_request = urlencode([('t', show), ('Season', season), ('Episode', episode)])
+    post_request = urlencode([('t', show), ('Season', season), ('Episode', episode)],quote_via=quote)
+    # quote_via=quote because + doesn't work in some cases
     logging.info("Parsed request is " + base + post_request)
 
     # get data from omdbapi.com
     try:
         data = urlopen(base + post_request)
         # url looks like this:
-        # http://www.omdbapi.com/?t=Game of Thrones&Season=1&Episode=1
+        # http://www.omdbapi.com/?t=Game%20of%20Thrones&Season=1&Episode=1
     except error.URLError as e:
         raise CustomError("There was an error when getting data from omdbapi.  "
                           "Possibly the site is offline: error code " + str(e.code))
@@ -66,6 +68,8 @@ def verify_show(show, season, number_episodes):
     helper function to check if omdb as all the episodes of a show in its database
     not complete yet
     """
+    raise NotImplementedError
+
     for i in range(1,50):
         try:
             output = get_info(show, season, episode)
