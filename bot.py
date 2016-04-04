@@ -8,6 +8,7 @@ import commentparser
 import omdb_requester
 from json import loads
 import logging
+import OAuth2Util
 
 ####################  SETUP   ######################
 logging.basicConfig(level="INFO",
@@ -17,16 +18,12 @@ logging.basicConfig(level="INFO",
 # todo: fix logging (it's not logging to the file anymore)
 # todo: stop praw debug logs from going to console
 logging.info("Bot started")
-user_agent = "python script for episode information upon request or activated by keyphrase in participating subreddits." \
-             "alpha v1.1 by Almenon"
-# string should not contain keyword bot
+user_agent = "Python:episodeInfo:v1.2 (by /u/Almenon)"
 r = praw.Reddit(user_agent=user_agent)
-with open("info/password.txt") as file:
-    password = file.read()
-    # password in text file so it's not available in public repository
-r.login('the_episode_bot', password, disable_warning=True)
-# todo: use Oauth instead of login because it will be deprecated in March
-# user to send error messages too
+
+# OAUTH Login:
+o = OAuth2Util.OAuth2Util(r) # add ,server_mode=True when running on heroku
+o.refresh(force=True)
 
 bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
 # see https://www.reddit.com/r/Bottiquette/wiki/robots_txt_json
