@@ -34,9 +34,7 @@ can't distinguish between different series of the same TV show.  Sorry Doctor Wh
 
 ### Possible Upcoming features
 
-* login via Oauth
-* search by episode title 
-* 24/7 online status via cloud-hosting 
+* search by episode title
 * support for shows with multiple series 
 
 ### Thanks to
@@ -45,5 +43,8 @@ can't distinguish between different series of the same TV show.  Sorry Doctor Wh
 * [omdbapi](https://www.omdbapi.com) for providing an open-source tv series database, 
 * [TV-related subreddits master-list](http://tv-subreddits.wikidot.com/)
 * [Netflix Roulette API](http://netflixroulette.net/api/) for links to watch on Netflix
+* [praw-OAuth2Util](https://github.com/SmBe19/praw-OAuth2Util) for making OAUTH a breeze
 
 Contributions and constructive criticism are welcomed.
+
+[comment]: # (describe how to run a custom version of the bot)
