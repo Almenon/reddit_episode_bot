@@ -5,6 +5,7 @@ import post_parser
 import commentparser
 import netflix_requester
 from json import load
+from datetime import datetime
 import logging
 
 with open("info/subreddits.txt") as file:
@@ -14,6 +15,12 @@ bot_disclaimer = "------\n" \
                  "^^| ^^[message](http://www.reddit.com/message/compose?to=the_episode_bot) ^^me " \
                  "^^if ^^there's ^^an ^^issue. ^^| ^^[about](https://github.com/Almenon/reddit_episode_bot)"
 # formatting for bot_disclaimer thanks to wikipediacitationbot
+
+lastNetflixEpisode = { # last episode availible on Netflix.  9999 for series always on Netflix
+    'bojack horseman': 9999,
+    'orange is the new black': 9999,
+    'my little pony': 5.26,
+}  # note that this system only supports series with < 100 episodes per season
 
 
 def format_comment(request, subreddit, post):
@@ -33,6 +40,8 @@ def format_comment(request, subreddit, post):
         parsedcomment = post_parser.parse(request)
         season, episode = parsedcomment
         show = subreddit_to_show[str(subreddit).lower()]
+        if int(season)+int(episode)/100 > lastNetflixEpisode[show]:
+            released = False
 
     else:
         parsedcomment = commentparser.parse(request)
@@ -46,11 +55,8 @@ def format_comment(request, subreddit, post):
                 title=episode_info['Title'], id=episode_info['imdbID'])
     if episode_info["Plot"] != "N/A":
         answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
-    if episode_info['Year'].isdigit() and int(episode_info['Year']) > 2016:
+    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year:
         released = False
-    # hardcoding in year is problematic - I will likely forget to update in 2017
-    # todo: avoid or find some way to auto update
-    # possibly just remove released feature?
 
     for key in ('imdbRating', 'Released'):
         if episode_info[key] != 'N/A':
@@ -62,13 +68,13 @@ def format_comment(request, subreddit, post):
             netflix_link = netflix_requester.get_netflix_link(show)
             if netflix_link is None:
                 answer += "Not available on Netflix\n\n"
-                logging.warning("the subreddit should be availible on netflix!")
+                logging.warning("the subreddit should be available on netflix!")
             else:
                 answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
         except netflix_requester.CustomError as e:
             logging.warning(e)
     else:
-        answer += "This episode has not released yet.\n\n"
+        answer += "This episode is not on Netflix yet.\n\n"
 
     answer += bot_disclaimer
     return answer
