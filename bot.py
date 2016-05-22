@@ -32,7 +32,7 @@ if not path.isfile('oauth.ini'):
     app_key = '+environ['OAUTH_key']+'\n\
     app_secret = '+environ['OAUTH_secret']+'\n\n\
     [server]\n\
-    server_mode = True\n')
+    server_mode = False\n')
 
 # OAUTH Login:
 o = OAuth2Util.OAuth2Util(r) # add ,server_mode=True when running on heroku
