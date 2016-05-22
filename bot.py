@@ -26,8 +26,8 @@ r = praw.Reddit(user_agent=user_agent)
 # which is why password file is created with environment variables
 if not path.isfile('oauth.ini'):
     try:
-        key = environ['OATUH_key']
-        secret = environ['OATUH_secret']
+        key = environ['OAUTH_key']
+        secret = environ['OAUTH_secret']
     except KeyError as e:
         logging.error("remember to set environment variables for app key and secret")
     with open("oauth.ini",'w') as file:
