@@ -19,7 +19,7 @@ last_time = saved_time.find_one()['time']
 # which is why password file is created with environment variables
 key = environ['OATUH_key']
 secret = environ['OATUH_secret']
-with open("/app/oauth.ini",'w') as file:
+with open("oauth.ini",'w') as file:
     file.write('[app]\n\
 scope = identity,account,edit,flair,history,privatemessages,read,submit,wikiread\n\
 refreshable = True\n\
