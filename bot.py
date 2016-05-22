@@ -32,11 +32,12 @@ if not path.isfile('oauth.ini'):
     app_key = '+environ['OAUTH_key']+'\n\
     app_secret = '+environ['OAUTH_secret']+'\n\n\
     [server]\n\
-    server_mode = False\n')
-
-# OAUTH Login:
-o = OAuth2Util.OAuth2Util(r) # add ,server_mode=True when running on heroku
-o.refresh(force=True)
+    server_mode = True\n')
+    o = OAuth2Util.OAuth2Util(r,server_mode=True)
+    o.refresh(force=True)
+else:
+    o = OAuth2Util.OAuth2Util(r)
+    o.refresh(force=True)
 
 bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
 # see https://www.reddit.com/r/Bottiquette/wiki/robots_txt_json
