@@ -25,17 +25,12 @@ r = praw.Reddit(user_agent=user_agent)
 # heroku is synced w/ github, and passwords should not be on github
 # which is why password file is created with environment variables
 if not path.isfile('oauth.ini'):
-    try:
-        key = environ['OAUTH_key']
-        secret = environ['OAUTH_secret']
-    except KeyError as e:
-        logging.error("remember to set environment variables for app key and secret")
     with open("oauth.ini",'w') as file:
         file.write('[app]\n\
     scope = identity,account,edit,flair,history,privatemessages,read,submit,wikiread\n\
     refreshable = True\n\
-    app_key = '+key+'\n\
-    app_secret = '+secret+'\n\n\
+    app_key = '+environ['OAUTH_key']+'\n\
+    app_secret = '+environ['OAUTH_secret']+'\n\n\
     [server]\n\
     server_mode = True\n')
 
