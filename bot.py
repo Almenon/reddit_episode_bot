@@ -32,7 +32,12 @@ if not path.isfile('oauth.ini'):
     app_key = '+environ['OAUTH_key']+'\n\
     app_secret = '+environ['OAUTH_secret']+'\n\n\
     [server]\n\
-    server_mode = True\n')
+    server_mode = True\n\n\
+    [token]\n\
+    token='+environ['token']+'\n\
+    refresh_token='+environ['refresh_token']+'\n\
+    valid_until=' + environ['valid_until'])
+
     o = OAuth2Util.OAuth2Util(r,server_mode=True)
     o.refresh(force=True)
 else:
