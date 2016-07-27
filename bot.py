@@ -89,9 +89,10 @@ def scan(last_scan):
                 logging.info("bot commented at " + submission.permalink)
                 num_posts[str(subreddit)] += 1
 
-            except omdb_requester.CustomError as error_msg:
-                logging.warning(str(error_msg))
-            except post_parser.ParseError as error_msg:
+            except (commentparser.ParseError,
+                    omdb_requester.OmdbError,
+                    comment_formatter.NotEnoughInfoError) as error_msg:
+
                 logging.warning(str(error_msg))
 
     # check for summons in replies / messages / mentions
@@ -114,7 +115,7 @@ def scan(last_scan):
                 message.mark_as_read()
                 continue
             message.reply(answer)
-        except (commentparser.ParseError, omdb_requester.CustomError) as error_msg:
+        except (commentparser.ParseError, omdb_requester.OmdbError) as error_msg:
             # send error message to me and commenter
             try: # if message is comment reply add link to comment
                 logging.warning(str(error_msg) + '\n' + message.permalink)
