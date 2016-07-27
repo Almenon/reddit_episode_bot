@@ -11,7 +11,10 @@ logger = logging.getLogger(__name__)
 base = "http://www.omdbapi.com/?"
 
 
-class CustomError(Exception):
+class OmdbError(Exception):
+    """
+    raised for any error in omdb_requester
+    """
     pass
 
 
@@ -34,7 +37,7 @@ def get_info(show='Game of thrones', season=1, episode=1):
         # url looks like this:
         # http://www.omdbapi.com/?t=Game%20of%20Thrones&Season=1&Episode=1
     except error.URLError as e:
-        raise CustomError("There was an error when getting data from omdbapi.  "
+        raise OmdbError("There was an error when getting data from omdbapi.  "
                           "Possibly the site is offline: error code " + str(e.code))
         # 400 or 404 error indicates site is offline.
         # 403 indicates Forbidden
@@ -46,11 +49,11 @@ def get_info(show='Game of thrones', season=1, episode=1):
     parsed_json = loads(json_data)
     logging.info("JSON: " + str(parsed_json))
     if len(parsed_json) == 2:  # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
-        raise CustomError(base+post_request + " returns error.  That episode or show is not in the database")
+        raise OmdbError(base + post_request + " returns error.  That episode or show is not in the database")
     try:
         urlopen("http://www.imdb.com/title/" + parsed_json['imdbID']) # verify imdb is correct
     except error.URLError as e:
-        raise CustomError("imdb link is incorrect: " + e.msg + ' ' + e.code)
+        raise OmdbError("imdb link is incorrect: " + e.msg + ' ' + e.code)
     return parsed_json
 
 
@@ -74,7 +77,7 @@ def verify_show(show, season, number_episodes):
         try:
             output = get_info(show, season, episode)
             print(output)
-        except CustomError as e:
+        except OmdbError as e:
             print(e)
             if had_error:
                 episode = 0
