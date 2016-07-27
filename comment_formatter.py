@@ -23,7 +23,11 @@ lastNetflixEpisode = { # last episode availible on Netflix.  9999 for series alw
 }  # note that this system only supports series with < 100 episodes per season
 
 
-class CustomError(Exception):
+class NotEnoughInfoError(Exception):
+    """
+    Raised when post does not have essential info (plot summary or netflix link)
+    Raising this exception ensures that only high quality posts survive
+    """
     pass
 
 
@@ -52,7 +56,7 @@ def format_post_reply(request, subreddit):
     if episode_info["Plot"] != "N/A":
         answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
     else:
-        raise CustomError
+        raise NotEnoughInfoError('No Plot Summary')
     if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year:
         released = False
 
@@ -65,13 +69,14 @@ def format_post_reply(request, subreddit):
         try:
             netflix_link = netflix_requester.get_netflix_link(show)
             if netflix_link is None:
-                raise netflix_requester.CustomError
+                raise NotEnoughInfoError('No Netflix Link')
                 # bot only looks at posts in subreddits with a netflix episode
                 # so this should never happen
             else:
                 answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
         except netflix_requester.CustomError as e:
             logging.warning(e)
+            raise NotEnoughInfoError('No Netflix Link')
     else:
         answer += "This episode is not on Netflix yet.\n\n"
 
