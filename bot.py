@@ -84,7 +84,7 @@ def scan(last_scan):
                     logging.info("no new posts in " + str(submission.subreddit))
                     break
                 logging.info("analyzing " + submission.permalink)
-                answer = comment_formatter.format_comment(submission.title, submission.subreddit, post=True)
+                answer = comment_formatter.format_post_reply(submission.title, submission.subreddit, post=True)
                 submission.add_comment(answer)
                 logging.info("bot commented at " + submission.permalink)
                 num_posts[str(subreddit)] += 1
@@ -104,7 +104,7 @@ def scan(last_scan):
                 message.mark_as_read()
                 continue
             try:
-                answer = comment_formatter.format_comment(message.body, message.subreddit, post=False)
+                answer = comment_formatter.format_comment_reply(message.body, message.subreddit, post=False)
             except KeyError:
                 r.send_message(message.author, "Episode bot could not reply",
                                "Please specify a show. If you are in the show's subreddit, "
