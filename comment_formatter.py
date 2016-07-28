@@ -58,7 +58,6 @@ def format_post_reply(request, subreddit):
         answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
     else:
         missingInfo += 1
-        raise NotEnoughInfoError('No Plot Summary')
     if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year:
         released = False
 
@@ -72,6 +71,7 @@ def format_post_reply(request, subreddit):
             netflix_link = netflix_requester.get_netflix_link(show)
             if netflix_link is None:
                 missingInfo += 1
+                logging.warning('netflix link is None')
                 # bot only looks at posts in subreddits with a netflix episode
                 # so this should never happen
             else:
