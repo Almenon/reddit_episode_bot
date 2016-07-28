@@ -94,7 +94,7 @@ def scan(last_scan):
                 logging.info("bot commented at " + submission.permalink)
                 num_posts[str(subreddit)] += 1
 
-            except (commentparser.ParseError,
+            except (post_parser.ParseError,
                     omdb_requester.OmdbError,
                     comment_formatter.NotEnoughInfoError) as error_msg:
 
