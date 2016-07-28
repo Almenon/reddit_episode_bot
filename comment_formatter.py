@@ -41,6 +41,7 @@ def format_post_reply(request, subreddit):
 
     global subreddit_to_show
     global bot_disclaimer
+    missingInfo = 0
     released = True
 
     parsedcomment = post_parser.parse(request)
@@ -56,6 +57,7 @@ def format_post_reply(request, subreddit):
     if episode_info["Plot"] != "N/A":
         answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
     else:
+        missingInfo += 1
         raise NotEnoughInfoError('No Plot Summary')
     if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year:
         released = False
@@ -69,16 +71,19 @@ def format_post_reply(request, subreddit):
         try:
             netflix_link = netflix_requester.get_netflix_link(show)
             if netflix_link is None:
-                raise NotEnoughInfoError('No Netflix Link')
+                missingInfo += 1
                 # bot only looks at posts in subreddits with a netflix episode
                 # so this should never happen
             else:
                 answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
         except netflix_requester.CustomError as e:
             logging.warning(e)
-            raise NotEnoughInfoError('No Netflix Link')
+            missingInfo += 1
     else:
         answer += "This episode is not on Netflix yet.\n\n"
+
+    if missingInfo == 2: # not enough info
+        raise NotEnoughInfoError
 
     answer += bot_disclaimer
     return answer
@@ -87,6 +92,7 @@ def format_post_reply(request, subreddit):
 def format_comment_reply(request, subreddit):
     """
     unlike format post reply, this formatter is more lenient if there's missing data
+
     :param request: comment text or post title
     :param subreddit: PRAW subreddit object or name of subreddit (without the /r/)
     :return: a paragraph of info and links about the episode, formatted for Reddit
