@@ -16,11 +16,9 @@ bot_disclaimer = "------\n" \
                  "^^if ^^there's ^^an ^^issue. ^^| ^^[about](https://github.com/Almenon/reddit_episode_bot)"
 # formatting for bot_disclaimer thanks to wikipediacitationbot
 
-lastNetflixEpisode = { # last episode availible on Netflix.  9999 for series always on Netflix
-    'bojack horseman': 9999,
-    'orange is the new black': 9999,
+limitedNetflixRelease = {
     'my little pony': 5.26,
-}  # note that this system only supports series with < 100 episodes per season
+}
 
 
 class NotEnoughInfoError(Exception):
@@ -47,8 +45,9 @@ def format_post_reply(request, subreddit):
     parsedcomment = post_parser.parse(request)
     season, episode = parsedcomment
     show = subreddit_to_show[str(subreddit).lower()]
-    if int(season)+int(episode)/100 > lastNetflixEpisode[show]:
-        released = False
+    if show in limitedNetflixRelease:
+        if int(season)+int(episode)/100 > limitedNetflixRelease[show]:
+            released = False
 
     episode_info = omdb_requester.get_info(show, season, episode)
     answer = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
@@ -72,8 +71,6 @@ def format_post_reply(request, subreddit):
             if netflix_link is None:
                 missingInfo += 1
                 logging.warning('netflix link is None')
-                # bot only looks at posts in subreddits with a netflix episode
-                # so this should never happen
             else:
                 answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
         except netflix_requester.CustomError as e:
@@ -82,7 +79,7 @@ def format_post_reply(request, subreddit):
     else:
         answer += "This episode is not on Netflix yet.\n\n"
 
-    if missingInfo == 2: # not enough info
+    if missingInfo == 2:
         raise NotEnoughInfoError
 
     answer += bot_disclaimer
@@ -127,7 +124,6 @@ def format_comment_reply(request, subreddit):
             netflix_link = netflix_requester.get_netflix_link(show)
             if netflix_link is None:
                 answer += "Not available on Netflix\n\n"
-                logging.warning("the subreddit should be available on netflix!")
             else:
                 answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
         except netflix_requester.CustomError as e:
