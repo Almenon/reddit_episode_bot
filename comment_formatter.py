@@ -17,8 +17,25 @@ bot_disclaimer = "------\n" \
 # formatting for bot_disclaimer thanks to wikipediacitationbot
 
 limitedNetflixRelease = {
-    'my little pony': 5.26,
+    'mylittlepony': 5.26,
 }
+
+spoiler1 = '[{}](/spoiler)'
+spoiler2 = '[](#s "{}")'
+spoiler3 = '[{}](#spoiler)'
+
+spoilers = {
+    "bojackhorseman":spoiler2,
+    "orangeisthenewblack":spoiler1,
+    "gravityfalls":spoiler3,
+    "mylittlepony":spoiler1,
+}
+
+postReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
+         "[**{title}**](http://www.imdb.com/title/{id}) [{rating}] |" \
+         " {netflix}" \
+         "[imdb](http://www.imdb.com/title/{id})" \
+         "\n\n> {plot}"
 
 
 class NotEnoughInfoError(Exception):
@@ -36,35 +53,18 @@ def format_post_reply(request, subreddit):
     :return: a paragraph of info and links about the episode, formatted for Reddit
     :except: omdb_requester.CustomError, post_parser.ParseError, comment_formatter.CustomError
     """
-
-    global subreddit_to_show
-    global bot_disclaimer
     missingInfo = 0
     released = True
 
-    parsedcomment = post_parser.parse(request)
-    season, episode = parsedcomment
+    season,episode = post_parser.parse(request)
     show = subreddit_to_show[str(subreddit).lower()]
-    if show in limitedNetflixRelease:
-        if int(season)+int(episode)/100 > limitedNetflixRelease[show]:
-            released = False
-
     episode_info = omdb_requester.get_info(show, season, episode)
-    answer = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-             "###[{title}](http://www.imdb.com/title/{id})\n\n".format(
-                title=episode_info['Title'], id=episode_info['imdbID'])
-    if episode_info["Plot"] != "N/A":
-        answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
-    else:
-        missingInfo += 1
-    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year:
+
+    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year\
+        or subreddit in limitedNetflixRelease and int(season)+int(episode)/100 > limitedNetflixRelease[subreddit]:
         released = False
 
-    for key in ('imdbRating', 'Released'):
-        if episode_info[key] != 'N/A':
-            answer += key + ": " + episode_info[key] + "\n\n"
-        else: continue
-
+    netflix = ''
     if released:
         try:
             netflix_link = netflix_requester.get_netflix_link(show)
@@ -72,18 +72,31 @@ def format_post_reply(request, subreddit):
                 missingInfo += 1
                 logging.warning('netflix link is None')
             else:
-                answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
+                netflix = "[Watch on Netflix](" + netflix_link + ") | "
         except netflix_requester.CustomError as e:
             logging.warning(e)
             missingInfo += 1
     else:
-        answer += "This episode is not on Netflix yet.\n\n"
+        missingInfo += 1
+
+    plot = episode_info['Plot']
+    if plot == "N/A":
+        plot = ''
+        missingInfo += 1
+    else:
+        if subreddit in spoilers:
+            plot = spoilers[subreddit].format(plot)
 
     if missingInfo == 2:
         raise NotEnoughInfoError
 
-    answer += bot_disclaimer
-    return answer
+    return postReply.format(
+                title = episode_info['Title'],
+                id = episode_info['imdbID'],
+                rating = episode_info['imdbRating'],
+                netflix = netflix,
+                plot = plot,
+    )
 
 
 def format_comment_reply(request, subreddit):
@@ -137,6 +150,8 @@ def format_comment_reply(request, subreddit):
 
 # testing:
 
-# print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 12 - Call of the Cutie","mylittlepony",True))
+#print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 12 - Call of the Cutie","mylittlepony"))
+#print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 12 - Call of the Cutie","gravityfalls"))
+#print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 9 - Call of the Cutie","bojackhorseman"))
 
 # print(format_post_reply("Summoning /u/the_episode_bot arrow s01e03","episode_bot",post=False))
