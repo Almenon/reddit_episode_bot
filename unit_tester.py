@@ -1,6 +1,7 @@
 import unittest
 from post_parser import parse,ParseError
 from omdb_requester import get_info,OmdbError
+from comment_formatter import format_post_reply
 
 with open('info/badPosts.txt') as f:
     badPosts = f.readlines()
@@ -32,3 +33,10 @@ class TestOmdb(unittest.TestCase):
             get_info() # default param is game of thrones, s1e1
         except OmdbError as e:
             self.fail(e)
+
+class TestCommentFormatter(unittest.TestCase):
+
+    def test_output(self):
+        print(format_post_reply("s1e1","mylittlepony"))
+        print(format_post_reply("s1e1","gravityfalls"))
+        print(format_post_reply("s1e1","bojackhorseman"))
