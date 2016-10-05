@@ -57,7 +57,8 @@ def format_post_reply(request, subreddit):
     released = True
 
     season,episode = post_parser.parse(request)
-    show = subreddit_to_show[str(subreddit).lower()]
+    subreddit = str(subreddit).lower() # clean input
+    show = subreddit_to_show[subreddit]
     episode_info = omdb_requester.get_info(show, season, episode)
 
     if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year\
@@ -115,8 +116,9 @@ def format_comment_reply(request, subreddit):
 
     parsedcomment = commentparser.parse(request)
     show, season, episode = parsedcomment
+    subreddit = str(subreddit).lower()  # clean input
     if show is None:
-        show = subreddit_to_show[str(subreddit).lower()]
+        show = subreddit_to_show[subreddit]
 
     episode_info = omdb_requester.get_info(show, season, episode)
     answer = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
