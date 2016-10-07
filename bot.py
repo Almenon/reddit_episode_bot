@@ -51,7 +51,7 @@ restricted_subreddits = restricted_subreddits["disallowed"] + \
                         restricted_subreddits["posts-only"] + \
                         restricted_subreddits["permission"]
 
-subreddits = ["bojackhorseman","orangeisthenewblack","gravityfalls","mylittlepony",]
+subreddits = ["archerfx","bojackhorseman","orangeisthenewblack","gravityfalls","mylittlepony",]
 subreddits = [r.get_subreddit(s) for s in subreddits]
 
 num_posts = {}
@@ -134,7 +134,7 @@ def scan(last_scan):
     user = r.get_redditor('the_episode_bot')
     comments = user.get_comments(time='week') # week selector does not work
     for x in comments:
-        # dont analyze comments more than a week old
+        # don't analyze comments more than a week old
         if x.created_utc<(last_scan-604800):
             break
         if x.id in bad_comments: continue

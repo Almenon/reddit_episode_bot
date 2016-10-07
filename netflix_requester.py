@@ -10,6 +10,7 @@ hardcoded_links = { # hardcoded links for important subreddits in case netflix w
     'bojack horseman': 'http://www.netflix.com/title/70300800',
     'orange is the new black': 'http://www.netflix.com/title/70242311',
     'my little pony': 'http://www.netflix.com/title/70234440',
+    'archerfx': 'http://www.netflix.com/title/70171942'
 }
 netflix_url = "http://www.netflix.com/title/"
 api_url = 'http://netflixroulette.net/api/api.php?title='
