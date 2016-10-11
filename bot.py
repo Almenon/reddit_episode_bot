@@ -62,32 +62,40 @@ post_limit = {}
 for s in subreddits:
     post_limit[str(s)] = 4
 
-bad_comments = list(range(50))
+ignoredUsers = ['AutoModerator',]
+
+badComments = []
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
 
 def scan(last_scan):
     """"
     scans replies, mentions, messages, and configured subreddits.
-    Replies if keyphrase detected.  Alerts dev if there are any issues.
-    :param: last scan time
+    Replies if keyphrase detected.  logs any issues.
+    :param: last scan time in unix time
     :raises: Hopefully nothing, unless there is a connection problem
     """
+    check_subreddits(last_scan)
+    check_unread()
+    check_downvoted(last_scan)
 
+def check_subreddits(last_scan):
+    """
+    reply to any valid posts in the monitored subreddits
+    """
     global num_posts
-    global bad_comments
 
     for subreddit in subreddits:
 
-        if num_posts[str(subreddit)] >= post_limit[str(subreddit)]:
-            continue
+        if num_posts[str(subreddit)] >= post_limit[str(subreddit)]: continue
 
-        submissions = subreddit.get_new()
-
-        for submission in submissions:
+        for submission in subreddit.get_new():
             try:
                 if submission.created_utc < last_scan:
                     logging.info("no new posts in " + str(submission.subreddit))
                     break
+                if submission.author.name in ignoredUsers:
+                    logging.info('ignored ' + submission.author.name)
+                    continue
                 logging.info("analyzing " + submission.permalink)
                 answer = comment_formatter.format_post_reply(submission.title, submission.subreddit)
                 submission.add_comment(answer)
@@ -100,9 +108,11 @@ def scan(last_scan):
 
                 logging.warning(str(error_msg))
 
-    # check for summons in replies / messages / mentions
-    messages = r.get_unread()
-    for message in messages:
+def check_unread():
+    """
+    reply to any valid summons in replies / messages / mentions
+    """
+    for message in r.get_unread():
         try:
             if message.subreddit in restricted_subreddits:
                 r.send_message(message.author, "episodebot could not reply",
@@ -130,15 +140,19 @@ def scan(last_scan):
 
         message.mark_as_read()
 
-    # check if any comments are downvoted
+def check_downvoted(last_scan):
+    """"
+    logs any downvoted comments since a week before the last scan
+    stores downvoted comments in badComments
+    """
+    global badComments
     user = r.get_redditor('the_episode_bot')
     comments = user.get_comments(time='week') # week selector does not work
     for x in comments:
         # don't analyze comments more than a week old
         if x.created_utc<(last_scan-604800):
             break
-        if x.id in bad_comments: continue
+        if x.id in badComments: continue
         if x.score < 0:
-            bad_comments.insert(0,x.id)
-            bad_comments.pop()
+            badComments.append(x.id)
             logging.warning("downvoted comment alert")
