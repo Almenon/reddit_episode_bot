@@ -33,7 +33,7 @@ spoilers = {
 }
 
 postReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-         "[**{title}**](http://www.imdb.com/title/{id}) [{rating}] |" \
+         "[**{title}**](http://www.imdb.com/title/{id}) {rating}|" \
          " {netflix}" \
          "[imdb](http://www.imdb.com/title/{id})" \
          "\n\n> {plot}"
@@ -92,10 +92,15 @@ def format_post_reply(request, subreddit):
     if missingInfo == 2:
         raise NotEnoughInfoError
 
+    if(episode_info['imdbRating'] == 'N/A'):
+        rating = ''
+    else:
+        rating = '[{}] '.format(episode_info['imdbRating'])
+
     return postReply.format(
                 title = episode_info['Title'],
                 id = episode_info['imdbID'],
-                rating = episode_info['imdbRating'],
+                rating = rating,
                 netflix = netflix,
                 plot = plot,
     )
@@ -153,7 +158,7 @@ def format_comment_reply(request, subreddit):
 
 # testing:
 
-#print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 12 - Call of the Cutie","mylittlepony"))
+#print(format_post_reply("Hiatus weekly re-watch thread: Season 4 Episode 12 - Call of the Cutie","orangeisthenewblack"))
 #print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 12 - Call of the Cutie","gravityfalls"))
 #print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 9 - Call of the Cutie","bojackhorseman"))
 
