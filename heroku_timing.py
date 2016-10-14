@@ -16,6 +16,7 @@ saved_time = db.last_time # type: collection
 last_time = saved_time.find_one()['time']
 
 last_day = localtime().tm_mday
+bot.login("Python:episodeInfo:v2.0 (by /u/Almenon)")
 
 while True:
     try:

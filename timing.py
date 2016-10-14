@@ -13,7 +13,6 @@ last_day = localtime().tm_mday
 with open("info/time.txt") as file:
     last_scan = load(file)
 
-
 def save_scan_time():
     global last_scan
     last_scan = time()
@@ -21,6 +20,8 @@ def save_scan_time():
         file.write(str(last_scan))
         # another approach would be to save newest submission id
         # r.get_subreddit("name",place_holder=id) to get content newer than id
+
+bot.login("Python:episodeInfo:v2.0 (by /u/Almenon)")
 
 while True:
     try:

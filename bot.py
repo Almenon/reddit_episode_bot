@@ -11,48 +11,13 @@ import logging
 import OAuth2Util
 from os import environ,path
 
-####################  SETUP   ######################
 logging.basicConfig(level="INFO",
                     filename="info/bot.log",
                     format='%(asctime)s %(module)s:%(levelname)s: %(message)s'
                     )
-# todo: fix logging (it's not logging to the file anymore)
 # todo: stop praw debug logs from going to console
-logging.info("Bot started")
-user_agent = "Python:episodeInfo:v1.2 (by /u/Almenon)"
-r = praw.Reddit(user_agent=user_agent)
-
-# heroku is synced w/ github, and passwords should not be on github
-# which is why password file is created with environment variables
-if not path.isfile('oauth.ini'):
-    with open("oauth.ini",'w') as file:
-        file.write('[app]\n\
-    scope = identity,account,edit,flair,history,privatemessages,read,submit,wikiread\n\
-    refreshable = True\n\
-    app_key = '+environ['OAUTH_key']+'\n\
-    app_secret = '+environ['OAUTH_secret']+'\n\n\
-    [server]\n\
-    server_mode = True\n\n\
-    [token]\n\
-    token='+environ['token']+'\n\
-    refresh_token='+environ['refresh_token']+'\n\
-    valid_until=' + environ['valid_until'])
-
-    o = OAuth2Util.OAuth2Util(r,server_mode=True)
-    o.refresh(force=True)
-else:
-    o = OAuth2Util.OAuth2Util(r)
-    o.refresh(force=True)
-
-bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
-# see https://www.reddit.com/r/Bottiquette/wiki/robots_txt_json
-restricted_subreddits = loads(bottiquette.content_md)
-restricted_subreddits = restricted_subreddits["disallowed"] + \
-                        restricted_subreddits["posts-only"] + \
-                        restricted_subreddits["permission"]
 
 subreddits = ["archerfx","bojackhorseman","orangeisthenewblack","gravityfalls","mylittlepony",]
-subreddits = [r.get_subreddit(s) for s in subreddits]
 
 num_posts = {}
 for s in subreddits:
@@ -66,6 +31,50 @@ ignoredUsers = ['AutoModerator',]
 
 badComments = []
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
+
+restricted_subreddits = {}
+
+def login(user_agent):
+    """"
+    Authenticates bot, loads bottiquette, and turns subreddits into praw objects
+    """
+    global r
+    global subreddits
+    global restricted_subreddits
+
+    logging.info("Bot started")
+    r = praw.Reddit(user_agent=user_agent)
+
+    # heroku is synced w/ github, and passwords should not be on github
+    # which is why password file is created with environment variables
+    if not path.isfile('oauth.ini'):
+        with open("oauth.ini", 'w') as file:
+            file.write('[app]\n\
+        scope = identity,account,edit,flair,history,privatemessages,read,submit,wikiread\n\
+        refreshable = True\n\
+        app_key = ' + environ['OAUTH_key'] + '\n\
+        app_secret = ' + environ['OAUTH_secret'] + '\n\n\
+        [server]\n\
+        server_mode = True\n\n\
+        [token]\n\
+        token=' + environ['token'] + '\n\
+        refresh_token=' + environ['refresh_token'] + '\n\
+        valid_until=' + environ['valid_until'])
+
+        o = OAuth2Util.OAuth2Util(r, server_mode=True)
+        o.refresh(force=True)
+    else:
+        o = OAuth2Util.OAuth2Util(r)
+        o.refresh(force=True)
+
+    bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
+    # see https://www.reddit.com/r/Bottiquette/wiki/robots_txt_json
+    restricted_subreddits = loads(bottiquette.content_md)
+    restricted_subreddits = restricted_subreddits["disallowed"] + \
+                            restricted_subreddits["posts-only"] + \
+                            restricted_subreddits["permission"]
+
+    subreddits = [r.get_subreddit(s) for s in subreddits]
 
 def scan(last_scan):
     """"
