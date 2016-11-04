@@ -11,7 +11,7 @@ A script that provides info and links to TV episodes.  It can automatically crea
 
 ### How to activate
 
-You have to mention, reply, or message /u/the_episode_bot.  If you post a thread with the correct format in the title it automatically activates. (currently limited to participating subreddits\*).  The bot runs during the day and sleeps during the night (Pacific Time)
+You have to mention, reply, or message [/u/the_episode_bot](www.reddit.com/u/the_episode_bot).  If you post a thread with the correct format in the title it automatically activates. (currently limited to participating subreddits\*).  The bot runs during the day and sleeps during the night (Pacific Time)
 
 Requests should be in a form similar to this:
 
