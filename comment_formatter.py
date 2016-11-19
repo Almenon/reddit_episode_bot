@@ -120,40 +120,49 @@ def format_comment_reply(request, subreddit):
     global bot_disclaimer
     released = True
 
-    parsedcomment = commentparser.parse(request)
-    show, season, episode = parsedcomment
-    subreddit = str(subreddit).lower()  # clean input
-    if show is None:
-        show = subreddit_to_show[subreddit]
-
+    show,season,episode = commentparser.parse(request)
+    subreddit = str(subreddit).lower() # clean input
     episode_info = omdb_requester.get_info(show, season, episode)
-    answer = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-             "###[{title}](http://www.imdb.com/title/{id})\n\n".format(
-                title=episode_info['Title'], id=episode_info['imdbID'])
-    if episode_info["Plot"] != "N/A":
-        answer += '[Mouseover for a brief summary](#mouseover "' + episode_info["Plot"] + '")\n\n'
-    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year:
+    if show is None:
+        try:
+            show = subreddit_to_show[subreddit]
+        except IndexError:
+            raise commentparser.ParseError
+
+    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year\
+        or subreddit in limitedNetflixRelease and int(season)+int(episode)/100 > limitedNetflixRelease[subreddit]:
         released = False
 
-    for key in ('imdbRating', 'Released'):
-        if episode_info[key] != 'N/A':
-            answer += key + ": " + episode_info[key] + "\n\n"
-        else: continue
-
+    netflix = ''
     if released:
         try:
             netflix_link = netflix_requester.get_netflix_link(show)
             if netflix_link is None:
-                answer += "Not available on Netflix\n\n"
+                logging.warning('netflix link is None')
             else:
-                answer += "[**Watch on Netflix**](" + netflix_link + ")\n\n"
+                netflix = "[Watch on Netflix](" + netflix_link + ") | "
         except netflix_requester.CustomError as e:
             logging.warning(e)
-    else:
-        answer += "This episode is not on Netflix yet.\n\n"
 
-    answer += bot_disclaimer
-    return answer
+    plot = episode_info['Plot']
+    if plot == "N/A":
+        plot = ''
+    else:
+        if subreddit in spoilers:
+            plot = spoilers[subreddit].format(plot)
+
+    if(episode_info['imdbRating'] == 'N/A'):
+        rating = ''
+    else:
+        rating = '[{}] '.format(episode_info['imdbRating'])
+
+    return postReply.format(
+                title = episode_info['Title'],
+                id = episode_info['imdbID'],
+                rating = rating,
+                netflix = netflix,
+                plot = plot,
+    )
 
 
 # testing:
