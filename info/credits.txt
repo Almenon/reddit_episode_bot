@@ -12,8 +12,10 @@ Bug-finding:
 whine_and_cheese
 isgoodlatvian
 Hlug2340
+justsomeusernamehere (pointed out that mouseovers don't work for most mobile users)
 
 Feature ideas:
 
 Itsthejoker
 dibsODDJOB
+somegetit (minimalist comment formatting)
