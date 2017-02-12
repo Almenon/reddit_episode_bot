@@ -1,16 +1,16 @@
 import unittest
-from post_parser import parse,ParseError
-from omdb_requester import get_info,OmdbError
+
 from comment_formatter import format_post_reply
-from bot import subreddits
+from omdb_requester import get_info, OmdbError
+from post_parser import parse, ParseError
 
 with open('info/badPosts.txt') as f:
     badPosts = f.readlines()
 with open('info/goodPosts.txt') as f:
     goodPosts = f.readlines()
 
-class TestRegex(unittest.TestCase):
 
+class TestRegex(unittest.TestCase):
     def test_bad_posts(self):
         for badPost in badPosts:
             with self.assertRaises(ParseError):
@@ -23,20 +23,20 @@ class TestRegex(unittest.TestCase):
             except ParseError:
                 self.fail(goodPost)
 
-class TestOmdb(unittest.TestCase):
 
+class TestOmdb(unittest.TestCase):
     def test_bad_show(self):
-            with self.assertRaises(OmdbError):
-                get_info('seafoijosefijo',1,1)
+        with self.assertRaises(OmdbError):
+            get_info('seafoijosefijo', 1, 1)
 
     def test_good_show(self):
         try:
-            get_info() # default param is game of thrones, s1e1
+            get_info()  # default param is game of thrones, s1e1
         except OmdbError as e:
             self.fail(e)
 
-class TestCommentFormatter(unittest.TestCase):
 
+class TestCommentFormatter(unittest.TestCase):
     # def test_all_subreddits(self):
     #     try:
     #         [format_post_reply("s1e1",sub) for sub in subreddits]
@@ -45,34 +45,34 @@ class TestCommentFormatter(unittest.TestCase):
 
     def test_good_reply(self):
         goodReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-        "[**I Wasn't Ready**](http://www.imdb.com/title/tt2400770) [7.8] | " \
-        "[Watch on Netflix](http://www.netflix.com/title/70242311) | [imdb](http://www.imdb.com/title/tt2400770)" \
-        "\n\n> [Piper Chapman is sent to jail as a result of her relationship with a drug smuggler.](/spoiler)"
+                    "[**I Wasn't Ready**](http://www.imdb.com/title/tt2400770) [7.8] | " \
+                    "[Watch on Netflix](http://www.netflix.com/title/70242311) | [imdb](http://www.imdb.com/title/tt2400770)" \
+                    "\n\n> [Piper Chapman is sent to jail as a result of her relationship with a drug smuggler.](/spoiler)"
 
-        reply = format_post_reply("s1e1","orangeisthenewblack")
-        self.assertEqual(reply,goodReply)
+        reply = format_post_reply("s1e1", "orangeisthenewblack")
+        self.assertEqual(reply, goodReply)
 
     def test_no_netflix(self):
         goodReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-        "[**Tourist Trapped**](http://www.imdb.com/title/tt2152239) [8.5] | [imdb](http://www.imdb.com/title/tt2152239)" \
-        "\n\n> [Dipper suspects that Mabel's new boyfriend is a zombie.](#spoiler)"
+                    "[**Tourist Trapped**](http://www.imdb.com/title/tt2152239) [8.5] | [imdb](http://www.imdb.com/title/tt2152239)" \
+                    "\n\n> [Dipper suspects that Mabel's new boyfriend is a zombie.](#spoiler)"
 
-        reply = format_post_reply("s1e1","gravityfalls")
-        self.assertEqual(reply,goodReply)
+        reply = format_post_reply("s1e1", "gravityfalls")
+        self.assertEqual(reply, goodReply)
 
     def test_missing_rating(self):
         goodReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-        "[**A Hearth's Warming Tail**](http://www.imdb.com/title/tt5524262) | "\
-        "[imdb](http://www.imdb.com/title/tt5524262)\n\n"\
-        "> [Starlight Glimmer has a case of the holiday blues, so Twilight tries to help cure her by reading one of her favorite Hearth Warming's Eve stories, A Hearth's Warming Tale.](/spoiler)"
+                    "[**A Hearth's Warming Tail**](http://www.imdb.com/title/tt5524262) | " \
+                    "[imdb](http://www.imdb.com/title/tt5524262)\n\n" \
+                    "> [Starlight Glimmer has a case of the holiday blues, so Twilight tries to help cure her by reading one of her favorite Hearth Warming's Eve stories, A Hearth's Warming Tale.](/spoiler)"
 
-        reply = format_post_reply("s6e8","mylittlepony")
-        self.assertEqual(reply,goodReply)
+        reply = format_post_reply("s6e8", "mylittlepony")
+        self.assertEqual(reply, goodReply)
 
     def test_missing_plot(self):
         goodReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-        "[**Episode #4.12**](http://www.imdb.com/title/tt5193130) | " \
-        "[Watch on Netflix](http://www.netflix.com/title/70242311) | [imdb](http://www.imdb.com/title/tt5193130)\n\n> "
+                    "[**Episode #4.12**](http://www.imdb.com/title/tt5193130) | " \
+                    "[Watch on Netflix](http://www.netflix.com/title/70242311) | [imdb](http://www.imdb.com/title/tt5193130)\n\n> "
 
-        reply = format_post_reply("s4e12","orangeisthenewblack")
-        self.assertEqual(reply,goodReply)
+        reply = format_post_reply("s4e12", "orangeisthenewblack")
+        self.assertEqual(reply, goodReply)

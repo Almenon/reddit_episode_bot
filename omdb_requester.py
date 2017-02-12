@@ -1,11 +1,12 @@
 __author__ = 'Almenon'
 
-from urllib.request import urlopen
+import logging
+from json import loads
+from urllib import error
 from urllib.parse import quote
 from urllib.parse import urlencode
-from urllib import error
-from json import loads
-import logging
+from urllib.request import urlopen
+
 logger = logging.getLogger(__name__)
 
 base = "http://www.omdbapi.com/?"
@@ -27,20 +28,14 @@ def get_info(show='Game of thrones', season=1, episode=1):
     :raises: CustomError if show is not in omdb or omdb is down
     """
 
-    post_request = urlencode([('t', show), ('Season', season), ('Episode', episode)],quote_via=quote)
+    post_request = urlencode([('t', show), ('Season', season), ('Episode', episode)], quote_via=quote)
     # quote_via=quote because + doesn't work in some cases
     logging.info("Parsed request is " + base + post_request)
 
     # get data from omdbapi.com
-    try:
-        data = urlopen(base + post_request)
-        # url looks like this:
-        # http://www.omdbapi.com/?t=Game%20of%20Thrones&Season=1&Episode=1
-    except error.URLError as e:
-        raise OmdbError("There was an error when getting data from omdbapi.  "
-                          "Possibly the site is offline: error code " + str(e.code))
-        # 400 or 404 error indicates site is offline.
-        # 403 indicates Forbidden
+    data = urlopen(base + post_request)
+    # url looks like this:
+    # http://www.omdbapi.com/?t=Game%20of%20Thrones&Season=1&Episode=1
 
     # PARSE JSON & return requested data
     # thanks to http://stackoverflow.com/questions/6541767
@@ -51,11 +46,10 @@ def get_info(show='Game of thrones', season=1, episode=1):
     if len(parsed_json) == 2:  # checks if JSON is {'Response': 'False', 'Error': 'Series or episode not found!'}
         raise OmdbError(base + post_request + " returns error.  That episode or show is not in the database")
     try:
-        urlopen("http://www.imdb.com/title/" + parsed_json['imdbID']) # verify imdb is correct
+        urlopen("http://www.imdb.com/title/" + parsed_json['imdbID'])  # verify imdb is correct
     except error.URLError as e:
-        raise OmdbError("imdb link is incorrect: " + e.msg + ' ' + e.code)
+        raise OmdbError(f"imdb link is incorrect: {e.msg} {e.code}")
     return parsed_json
-
 
 
 # for testing:
@@ -73,7 +67,7 @@ def verify_show(show, season, number_episodes):
     """
     raise NotImplementedError
 
-    for i in range(1,50):
+    for i in range(1, 50):
         try:
             output = get_info(show, season, episode)
             print(output)

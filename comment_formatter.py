@@ -1,15 +1,16 @@
 __author__ = 'Caleb'
 
-import omdb_requester
-import post_parser
+import logging
+from datetime import datetime
+from json import load
+
 import commentparser
 import netflix_requester
-from json import load
-from datetime import datetime
-import logging
+import omdb_requester
+import post_parser
 
 with open("info/subreddits.txt") as file:
-    subreddit_to_show = load(file) # dictionary [subreddit name] = tv show
+    subreddit_to_show = load(file)  # dictionary [subreddit name] = tv show
 bot_disclaimer = "------\n" \
                  "^^I'm ^^a ^^bot ^^that ^^gives ^^info ^^on ^^shows. " \
                  "^^| ^^[message](http://www.reddit.com/message/compose?to=the_episode_bot) ^^me " \
@@ -25,18 +26,18 @@ spoiler2 = '[](#s "{}")'
 spoiler3 = '[{}](#spoiler)'
 
 spoilers = {
-    "bojackhorseman":spoiler2,
-    "orangeisthenewblack":spoiler1,
-    "gravityfalls":spoiler3,
-    "mylittlepony":spoiler1,
-    "archerfx":spoiler1
+    "bojackhorseman": spoiler2,
+    "orangeisthenewblack": spoiler1,
+    "gravityfalls": spoiler3,
+    "mylittlepony": spoiler1,
+    "archerfx": spoiler1
 }
 
 postReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-         "[**{title}**](http://www.imdb.com/title/{id}) {rating}|" \
-         " {netflix}" \
-         "[imdb](http://www.imdb.com/title/{id})" \
-         "\n\n> {plot}"
+            "[**{title}**](http://www.imdb.com/title/{id}) {rating}|" \
+            " {netflix}" \
+            "[imdb](http://www.imdb.com/title/{id})" \
+            "\n\n> {plot}"
 
 
 class NotEnoughInfoError(Exception):
@@ -57,13 +58,14 @@ def format_post_reply(request, subreddit):
     missingInfo = 0
     released = True
 
-    season,episode = post_parser.parse(request)
-    subreddit = str(subreddit).lower() # clean input
+    season, episode = post_parser.parse(request)
+    subreddit = str(subreddit).lower()  # clean input
     show = subreddit_to_show[subreddit]
     episode_info = omdb_requester.get_info(show, season, episode)
 
-    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year\
-        or subreddit in limitedNetflixRelease and int(season)+int(episode)/100 > limitedNetflixRelease[subreddit]:
+    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year \
+            or subreddit in limitedNetflixRelease and int(season) + int(episode) / 100 > limitedNetflixRelease[
+                subreddit]:
         released = False
 
     netflix = ''
@@ -74,7 +76,7 @@ def format_post_reply(request, subreddit):
                 missingInfo += 1
                 logging.warning('netflix link is None')
             else:
-                netflix = "[Watch on Netflix](" + netflix_link + ") | "
+                netflix = f"[Watch on Netflix]({netflix_link}) | "
         except netflix_requester.CustomError as e:
             logging.warning(e)
             missingInfo += 1
@@ -92,17 +94,17 @@ def format_post_reply(request, subreddit):
     if missingInfo == 2:
         raise NotEnoughInfoError
 
-    if(episode_info['imdbRating'] == 'N/A'):
+    if episode_info['imdbRating'] == 'N/A':
         rating = ''
     else:
-        rating = '[{}] '.format(episode_info['imdbRating'])
+        rating = f"[{episode_info['imdbRating']}] "  # the space at end is important
 
     return postReply.format(
-                title = episode_info['Title'],
-                id = episode_info['imdbID'],
-                rating = rating,
-                netflix = netflix,
-                plot = plot,
+        title=episode_info['Title'],
+        id=episode_info['imdbID'],
+        rating=rating,
+        netflix=netflix,
+        plot=plot,
     )
 
 
@@ -120,8 +122,8 @@ def format_comment_reply(request, subreddit):
     global bot_disclaimer
     released = True
 
-    show,season,episode = commentparser.parse(request)
-    subreddit = str(subreddit).lower() # clean input
+    show, season, episode = commentparser.parse(request)
+    subreddit = str(subreddit).lower()  # clean input
     episode_info = omdb_requester.get_info(show, season, episode)
     if show is None:
         try:
@@ -129,8 +131,9 @@ def format_comment_reply(request, subreddit):
         except IndexError:
             raise commentparser.ParseError
 
-    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year\
-        or subreddit in limitedNetflixRelease and int(season)+int(episode)/100 > limitedNetflixRelease[subreddit]:
+    if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year \
+            or subreddit in limitedNetflixRelease and int(season) + int(episode) / 100 > limitedNetflixRelease[
+                subreddit]:
         released = False
 
     netflix = ''
@@ -140,7 +143,7 @@ def format_comment_reply(request, subreddit):
             if netflix_link is None:
                 logging.warning('netflix link is None')
             else:
-                netflix = "[Watch on Netflix](" + netflix_link + ") | "
+                netflix = f"[Watch on Netflix]({netflix_link}) | "
         except netflix_requester.CustomError as e:
             logging.warning(e)
 
@@ -151,24 +154,23 @@ def format_comment_reply(request, subreddit):
         if subreddit in spoilers:
             plot = spoilers[subreddit].format(plot)
 
-    if(episode_info['imdbRating'] == 'N/A'):
+    if episode_info['imdbRating'] == 'N/A':
         rating = ''
     else:
-        rating = '[{}] '.format(episode_info['imdbRating'])
+        rating = f"[{episode_info['imdbRating']}] "  # the space at end is important
 
     return postReply.format(
-                title = episode_info['Title'],
-                id = episode_info['imdbID'],
-                rating = rating,
-                netflix = netflix,
-                plot = plot,
+        title=episode_info['Title'],
+        id=episode_info['imdbID'],
+        rating=rating,
+        netflix=netflix,
+        plot=plot,
     )
-
 
 # testing:
 
-#print(format_post_reply("Hiatus weekly re-watch thread: Season 4 Episode 12 - Call of the Cutie","orangeisthenewblack"))
-#print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 12 - Call of the Cutie","gravityfalls"))
-#print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 9 - Call of the Cutie","bojackhorseman"))
+# print(format_post_reply("Hiatus weekly re-watch thread: Season 4 Episode 12 - Call of the Cutie","orangeisthenewblack"))
+# print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 12 - Call of the Cutie","gravityfalls"))
+# print(format_post_reply("Hiatus weekly re-watch thread: Season 1 Episode 9 - Call of the Cutie","bojackhorseman"))
 
 # print(format_post_reply("Summoning /u/the_episode_bot arrow s01e03","episode_bot",post=False))
