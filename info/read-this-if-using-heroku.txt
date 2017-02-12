@@ -1,6 +1,3 @@
-To put this bot on the cloud-service heroku you need the files in this folder.
-Move them out of this folder into the main folder (reddit_episode_bot).
-Replace timing.py with heroku timing.py
 Update mongodb info to be compatible with your mongo database
 
 requirements - heroku reads this to automatically download all requirements mentioned
@@ -17,12 +14,14 @@ Setting up heroku:
 2. make an heroku account
 3. open command line and navigate to desired folder
 3. heroku login
-4. heroku create
-5. git push heroku master
+4. heroku create (or if you've aleady cloned the repo, git:remote -a projectNameHere)
+5. clone repository
+6. git push heroku master
 
 heroku ps:scale worker=1 to run it
 heroku ps:scale worker=0 to stop running
 heroku ps to inspect worker status
+heroku run bash to access a bash instance in the server
 
 Setting up a mongo database:
 install Mongolab addon
