@@ -1,6 +1,7 @@
 __author__ = 'Almenon'
 
 import praw
+from praw.models import Comment
 # http://praw.readthedocs.org
 import comment_formatter
 import post_parser
@@ -9,15 +10,16 @@ import omdb_requester
 from json import loads
 import logging
 import OAuth2Util
-from os import environ,path
+from os import environ, path
 
+messageResponseTitle = 'Episodebot could not reply'
 logging.basicConfig(level="INFO",
                     filename="info/bot.log",
                     format='%(asctime)s %(module)s:%(levelname)s: %(message)s'
                     )
 # todo: stop praw debug logs from going to console
 
-subreddits = ["archerfx","bojackhorseman","orangeisthenewblack","gravityfalls","mylittlepony",]
+subreddits = ["archerfx", "bojackhorseman", "orangeisthenewblack", "gravityfalls", "mylittlepony", ]
 
 num_posts = {}
 for s in subreddits:
@@ -27,12 +29,13 @@ post_limit = {}
 for s in subreddits:
     post_limit[str(s)] = 4
 
-ignoredUsers = ['AutoModerator',]
+ignoredUsers = ['AutoModerator', ]
 
 badComments = []
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
 
 restricted_subreddits = {}
+
 
 def login(user_agent):
     """"
@@ -40,10 +43,12 @@ def login(user_agent):
     """
     global r
     global subreddits
+    global inbox
     global restricted_subreddits
 
     logging.info("Bot started")
-    r = praw.Reddit(user_agent=user_agent)
+    r = praw.Reddit(client_id=environ['OAUTH_key'], client_secret=environ['OAUTH_secret'], user_agent=user_agent,
+                    username='the_episode_bot', password=environ['reddit_password'])
 
     # heroku is synced w/ github, and passwords should not be on github
     # which is why password file is created with environment variables
@@ -67,14 +72,17 @@ def login(user_agent):
         o = OAuth2Util.OAuth2Util(r)
         o.refresh(force=True)
 
-    bottiquette = r.get_wiki_page('Bottiquette', 'robots_txt_json')
+    inbox = r.inbox
+    Bottiquette = r.subreddit('Bottiquette')
+    wiki = Bottiquette.wiki()['robots_txt_json']
     # see https://www.reddit.com/r/Bottiquette/wiki/robots_txt_json
-    restricted_subreddits = loads(bottiquette.content_md)
+    restricted_subreddits = loads(wiki.content_md)
     restricted_subreddits = restricted_subreddits["disallowed"] + \
                             restricted_subreddits["posts-only"] + \
                             restricted_subreddits["permission"]
 
-    subreddits = [r.get_subreddit(s) for s in subreddits]
+    subreddits = [r.subreddit(s) for s in subreddits]
+
 
 def scan(last_scan):
     """"
@@ -87,6 +95,7 @@ def scan(last_scan):
     check_unread()
     check_downvoted(last_scan)
 
+
 def check_subreddits(last_scan):
     """
     reply to any valid posts in the monitored subreddits
@@ -97,17 +106,17 @@ def check_subreddits(last_scan):
 
         if num_posts[str(subreddit)] >= post_limit[str(subreddit)]: continue
 
-        for submission in subreddit.get_new():
+        for submission in subreddit.submissions(last_scan):
             try:
                 if submission.created_utc < last_scan:
-                    logging.info("no new posts in " + str(submission.subreddit))
+                    logging.info(f"no new posts in {submission.subreddit}")
                     break
                 if submission.author.name in ignoredUsers:
                     logging.info('ignored ' + submission.author.name)
                     continue
                 logging.info("analyzing " + submission.permalink)
                 answer = comment_formatter.format_post_reply(submission.title, submission.subreddit)
-                submission.add_comment(answer)
+                submission.reply(answer)
                 logging.info("bot commented at " + submission.permalink)
                 num_posts[str(subreddit)] += 1
 
@@ -117,37 +126,31 @@ def check_subreddits(last_scan):
 
                 logging.warning(str(error_msg))
 
+
 def check_unread():
     """
-    reply to any valid summons in replies / messages / mentions
+    reply to any valid summons in replies / mentions
     """
-    for message in r.get_unread():
-        try:
+    for message in inbox.unread(mark_read=True):
+        if isinstance(message, Comment):  # mentions are a type of Comment
             if message.subreddit in restricted_subreddits:
-                r.send_message(message.author, "episodebot could not reply",
-                               "episodebot can't reply to a comment in a restricted subreddit")
-                message.mark_as_read()
+                r.redditor(message.author).message(messageResponseTitle,
+                                                   "episodebot can't reply to a comment in a restricted subreddit")
                 continue
             try:
                 answer = comment_formatter.format_comment_reply(message.body, message.subreddit)
+                message.reply(answer)
             except KeyError:
-                r.send_message(message.author, "Episode bot could not reply",
-                               "Please specify a show. If you are in the show's subreddit, "
-                               "you shouldn't need to specify it. Message /u/almenon to "
-                               "add the subreddit to the TV-related subreddit database")
                 logging.info("a subreddit was not listed in database")
-                message.mark_as_read()
-                continue
-            message.reply(answer)
-        except (commentparser.ParseError, omdb_requester.OmdbError) as error_msg:
-            # send error message to me and commenter
-            try: # if message is comment reply add link to comment
-                logging.warning(str(error_msg) + '\n' + message.permalink)
-            except AttributeError:
-                message_link = "https://www.reddit.com/message/messages/" + message.id
-                logging.warning(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
+                r.redditor(message.author).message(messageResponseTitle,
+                                                   "Please specify a show. If you are in the show's subreddit, "
+                                                   "you shouldn't need to specify it. Message /u/almenon to "
+                                                   "add the subreddit to the TV-related subreddit database")
+            except (commentparser.ParseError, omdb_requester.OmdbError) as error_msg:
+                logging.warning(f"{error_msg}\nmessage: {message}\n\n{message.permalink}")
+        else:
+            logging.info('You got mail!')
 
-        message.mark_as_read()
 
 def check_downvoted(last_scan):
     """"
@@ -155,11 +158,11 @@ def check_downvoted(last_scan):
     stores downvoted comments in badComments
     """
     global badComments
-    user = r.get_redditor('the_episode_bot')
-    comments = user.get_comments(time='week') # week selector does not work
+    user = r.redditor('the_episode_bot')
+    comments = user.comments()
     for x in comments:
         # don't analyze comments more than a week old
-        if x.created_utc<(last_scan-604800):
+        if x.created_utc < (last_scan - 604800):
             break
         if x.id in badComments: continue
         if x.score < 0:

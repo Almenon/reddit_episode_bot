@@ -1,17 +1,19 @@
 __author__ = 'Almenon'
 
-import praw
-# http://praw.readthedocs.org
-from time import time,sleep,localtime
-import bot
+import logging
+from json import load
+from time import time, sleep, localtime
+
+from praw.exceptions import PRAWException
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
-from json import load
-import logging
+
+import bot
 
 last_day = localtime().tm_mday
 with open("info/time.txt") as file:
     last_scan = load(file)
+
 
 def save_scan_time():
     global last_scan
@@ -21,7 +23,8 @@ def save_scan_time():
         # another approach would be to save newest submission id
         # r.get_subreddit("name",place_holder=id) to get content newer than id
 
-bot.login("Python:episodeInfo:v2.0 (by /u/Almenon)")
+
+bot.login("Python:episodeInfo:v2.1 (by /u/Almenon)")
 
 while True:
     try:
@@ -34,14 +37,14 @@ while True:
             for key in bot.num_posts: bot.num_posts[key] = 0
             last_day = localtime().tm_mday
 
-    except praw.errors.PRAWException as e:
+    except PRAWException as e:
         logging.exception(e)
-        logging.info("see http://praw.readthedocs.org/en/stable/pages/exceptions.html")
         save_scan_time()
         sleep(180)
     except (ConnectionError, ReadTimeout) as e:
         logging.exception(e)
-        logging.info("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
+        logging.info(
+            "there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
         save_scan_time()
         sleep(1200)  # sleep for 20 min
 
