@@ -2,7 +2,6 @@ import unittest
 from post_parser import parse,ParseError
 from omdb_requester import get_info,OmdbError
 from comment_formatter import format_post_reply
-from bot import subreddits
 
 with open('info/badPosts.txt') as f:
     badPosts = f.readlines()
@@ -45,7 +44,7 @@ class TestCommentFormatter(unittest.TestCase):
 
     def test_good_reply(self):
         goodReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-        "[**I Wasn't Ready**](http://www.imdb.com/title/tt2400770) [7.8] | " \
+        "[**I Wasn't Ready**](http://www.imdb.com/title/tt2400770) [7.8 ★] | " \
         "[Watch on Netflix](http://www.netflix.com/title/70242311) | [imdb](http://www.imdb.com/title/tt2400770)" \
         "\n\n> [Piper Chapman is sent to jail as a result of her relationship with a drug smuggler.](/spoiler)"
 
@@ -54,8 +53,9 @@ class TestCommentFormatter(unittest.TestCase):
 
     def test_no_netflix(self):
         goodReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-        "[**Tourist Trapped**](http://www.imdb.com/title/tt2152239) [8.5] | [imdb](http://www.imdb.com/title/tt2152239)" \
-        "\n\n> [Dipper suspects that Mabel's new boyfriend is a zombie.](#spoiler)"
+        "[**Tourist Trapped**](http://www.imdb.com/title/tt2152239) [8.5 ★] | [imdb](http://www.imdb.com/title/tt2152239)" \
+        "\n\n> [After finding a strange book in the forest, Dipper begins to learn about the dark side of Gravity Falls," \
+                    " and suspects that Mabel's new boyfriend is a zombie.](#spoiler)"
 
         reply = format_post_reply("s1e1","gravityfalls")
         self.assertEqual(reply,goodReply)
