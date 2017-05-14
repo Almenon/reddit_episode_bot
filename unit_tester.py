@@ -9,11 +9,12 @@ with open('info/badPosts.txt') as f:
 with open('info/goodPosts.txt') as f:
     goodPosts = f.readlines()
 
+
 class TestRegex(unittest.TestCase):
 
     def test_bad_posts(self):
         for badPost in badPosts:
-            with self.assertRaises(ParseError):
+            with self.assertRaises(ParseError, msg=badPost):
                 parse(badPost)
 
     def test_good_posts(self):
@@ -22,6 +23,7 @@ class TestRegex(unittest.TestCase):
                 parse(goodPost)
             except ParseError:
                 self.fail(goodPost)
+
 
 class TestOmdb(unittest.TestCase):
 
@@ -34,6 +36,7 @@ class TestOmdb(unittest.TestCase):
             get_info() # default param is game of thrones, s1e1
         except OmdbError as e:
             self.fail(e)
+
 
 class TestCommentFormatter(unittest.TestCase):
 
