@@ -95,7 +95,7 @@ def format_post_reply(request, subreddit):
     if(episode_info['imdbRating'] == 'N/A'):
         rating = ''
     else:
-        rating = '[{}] '.format(episode_info['imdbRating'])
+        rating = '[{} ★] '.format(episode_info['imdbRating'])
 
     return postReply.format(
                 title = episode_info['Title'],
