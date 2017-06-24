@@ -17,7 +17,7 @@ logging.basicConfig(level="INFO",
                     )
 # todo: stop praw debug logs from going to console
 
-subreddits = ["archerfx","bojackhorseman","orangeisthenewblack","gravityfalls","mylittlepony",]
+subreddits = ["archerfx","bojackhorseman","gravityfalls","mylittlepony",]
 
 num_posts = {}
 for s in subreddits:
@@ -33,6 +33,7 @@ badComments = []
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
 
 restricted_subreddits = {}
+
 
 def login(user_agent):
     """"
@@ -76,6 +77,7 @@ def login(user_agent):
 
     subreddits = [r.get_subreddit(s) for s in subreddits]
 
+
 def scan(last_scan):
     """"
     scans replies, mentions, messages, and configured subreddits.
@@ -86,6 +88,7 @@ def scan(last_scan):
     check_subreddits(last_scan)
     check_unread()
     check_downvoted(last_scan)
+
 
 def check_subreddits(last_scan):
     """
@@ -117,6 +120,10 @@ def check_subreddits(last_scan):
 
                 logging.warning(str(error_msg))
 
+            except omdb_requester.OmdbError as error_msg:
+                logging.error(str(error_msg))
+
+
 def check_unread():
     """
     reply to any valid summons in replies / messages / mentions
@@ -139,15 +146,22 @@ def check_unread():
                 message.mark_as_read()
                 continue
             message.reply(answer)
-        except (commentparser.ParseError, omdb_requester.OmdbError) as error_msg:
-            # send error message to me and commenter
+        except commentparser.ParseError as error_msg:
             try: # if message is comment reply add link to comment
                 logging.warning(str(error_msg) + '\n' + message.permalink)
             except AttributeError:
                 message_link = "https://www.reddit.com/message/messages/" + message.id
                 logging.warning(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
 
+        except omdb_requester.OmdbError as error_msg:
+            try: # if message is comment reply add link to comment
+                logging.error(str(error_msg) + '\n' + message.permalink)
+            except AttributeError:
+                message_link = "https://www.reddit.com/message/messages/" + message.id
+                logging.error(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
+
         message.mark_as_read()
+
 
 def check_downvoted(last_scan):
     """"
