@@ -2,11 +2,11 @@
 
 A script that provides info and links to TV episodes.  It can automatically create a comment like below:
 
-> ###[Brand New Couch](http://www.imdb.com/title/tt4311472) [8.4] | [**Watch on Netflix**](http://www.netflix.com/title/70300800) | [Imdb](http://www.imdb.com/title/tt4311472)
+#### [Brand New Couch](http://www.imdb.com/title/tt4311472) [8.4 ★] | [**Watch on Netflix**](http://www.netflix.com/title/70300800) | [Imdb](http://www.imdb.com/title/tt4311472)
 
-> > Picking up where he left off, Bojack Horseman is now set to start filming his dream movie Secretariat.
+> Picking up where he left off, Bojack Horseman is now set to start filming his dream movie Secretariat.
 
-> > *(Summary text is covered by spoilertag until mouseover)*
+> *(Summary text is covered by spoilertag until mouseover)*
 
 
 ### How to activate
