@@ -22,6 +22,18 @@ can be automatically inferred if the subreddit corresponds to a show in the TV-r
 Note that the listing is out of date, so please message me if there is a new show to include.  Also, the bot
 can't distinguish between different series of the same TV show.  Sorry Doctor Who fans, you are out of luck.
 
+
+### Development
+
+1. Download Python 3
+2. Install packages via pip install -r requirements.txt
+3. set your omdb api key as a environment variable
+4. debug unit tests in unit_tester.py to get a feel for how the code works (also see code diagram in info folder)
+5. Run timer.py
+
+For running bot on heroku look at the info folder
+
+
 ### Thanks to
 
 * [PRAW](https://praw.readthedocs.org/en/v3.1.0/) for conveniently accessing [reddit](https://www.reddit.com/), 
