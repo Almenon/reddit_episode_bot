@@ -5,11 +5,12 @@ from urllib.parse import quote
 from urllib.parse import urlencode
 from urllib import error
 from json import loads
+from os import environ
 import logging
 logger = logging.getLogger(__name__)
 
 base = "http://www.omdbapi.com/?"
-
+apiKey = environ['omdbApiKey']
 
 class OmdbError(Exception):
     """
@@ -27,7 +28,7 @@ def get_info(show='Game of thrones', season=1, episode=1):
     :raises: CustomError if show is not in omdb or omdb is down
     """
 
-    post_request = urlencode([('t', show), ('Season', season), ('Episode', episode)],quote_via=quote)
+    post_request = urlencode([('apikey', apiKey),('t', show), ('Season', season), ('Episode', episode)],quote_via=quote)
     # quote_via=quote because + doesn't work in some cases
     logging.info("Parsed request is " + base + post_request)
 

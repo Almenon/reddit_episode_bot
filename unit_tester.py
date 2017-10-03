@@ -63,19 +63,10 @@ class TestCommentFormatter(unittest.TestCase):
         reply = format_post_reply("s1e1","gravityfalls")
         self.assertEqual(reply,goodReply)
 
-    def test_missing_rating(self):
-        goodReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-        "[**A Hearth's Warming Tail**](http://www.imdb.com/title/tt5524262) | "\
-        "[imdb](http://www.imdb.com/title/tt5524262)\n\n"\
-        "> [Starlight Glimmer has a case of the holiday blues, so Twilight tries to help cure her by reading one of her favorite Hearth Warming's Eve stories, A Hearth's Warming Tale.](/spoiler)"
+    # def test_missing_rating(self):
+        #  this should be tested once you find another test case
+        #  last example got updated
 
-        reply = format_post_reply("s6e8","mylittlepony")
-        self.assertEqual(reply,goodReply)
-
-    def test_missing_plot(self):
-        goodReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
-        "[**Episode #4.12**](http://www.imdb.com/title/tt5193130) | " \
-        "[Watch on Netflix](http://www.netflix.com/title/70242311) | [imdb](http://www.imdb.com/title/tt5193130)\n\n> "
-
-        reply = format_post_reply("s4e12","orangeisthenewblack")
-        self.assertEqual(reply,goodReply)
+    # def test_missing_plot(self):
+        #  this should be tested once you find another test case
+        #  last example got updated
