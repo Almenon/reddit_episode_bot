@@ -32,6 +32,12 @@ while True:
             for key in bot.num_posts: bot.num_posts[key] = 0
             last_day = localtime().tm_mday
 
+    except (ConnectionError, ReadTimeout) as e:
+        print("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
+        logging.exception(e)
+        last_time = time()
+        saved_time.update_one({},{'$set':{'time':last_time}})
+        sleep(1200)  # sleep for 20 min
     except Exception as e:
         logging.exception(e)
         last_time = time()
@@ -39,12 +45,6 @@ while True:
         if isinstance(e, KeyboardInterrupt) or isinstance(e, SystemExit):
             raise
         sleep(180)
-    except (ConnectionError, ReadTimeout) as e:
-        print("there was an error connecting to reddit.  Check if it's down or if there is no internet connection")
-        logging.exception(e)
-        last_time = time()
-        saved_time.update_one({},{'$set':{'time':last_time}})
-        sleep(1200)  # sleep for 20 min
         
     logging.info("sleeping for 3 minutes")
     print("sleeping")
