@@ -87,7 +87,6 @@ def scan(last_scan):
     """
     check_subreddits(last_scan)
     check_unread()
-    check_downvoted(last_scan)
 
 
 def check_subreddits(last_scan):
@@ -161,21 +160,3 @@ def check_unread():
                 logging.error(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
 
         message.mark_as_read()
-
-
-def check_downvoted(last_scan):
-    """"
-    logs any downvoted comments since a week before the last scan
-    stores downvoted comments in badComments
-    """
-    global badComments
-    user = r.get_redditor('the_episode_bot')
-    comments = user.get_comments(time='week') # week selector does not work
-    for x in comments:
-        # don't analyze comments more than a week old
-        if x.created_utc<(last_scan-604800):
-            break
-        if x.id in badComments: continue
-        if x.score < 0:
-            badComments.append(x.id)
-            logging.warning("downvoted comment alert")
