@@ -27,7 +27,7 @@ post_limit = {}
 for s in subreddits:
     post_limit[str(s)] = 4
 
-ignoredUsers = ['AutoModerator','Chaosritter',]
+ignoredUsers = ['AutoModerator','Chaosritter','MeNowDealWithIt']
 
 badComments = []
 # store downvoted comments so i don't repeatedly warn myself of the same bad comment
