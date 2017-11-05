@@ -29,7 +29,8 @@ spoilers = {
     "orangeisthenewblack":spoiler1,
     "gravityfalls":spoiler3,
     "mylittlepony":spoiler1,
-    "archerfx":spoiler1
+    "archerfx":spoiler1,
+    "stevenuniverse":spoiler2
 }
 
 postReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
