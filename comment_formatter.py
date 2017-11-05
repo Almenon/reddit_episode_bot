@@ -17,7 +17,7 @@ bot_disclaimer = "------\n" \
 # formatting for bot_disclaimer thanks to wikipediacitationbot
 
 limitedNetflixRelease = {
-    'mylittlepony': 5.26,
+    # not shows have limited release currently.  if it did i would have a value like: 'mylittlepony': 7.13,
 }
 
 spoiler1 = '[{}](/spoiler)'
