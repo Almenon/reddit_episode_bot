@@ -70,12 +70,8 @@ def format_post_reply(request, subreddit):
     if released:
         try:
             netflix_link = netflix_requester.get_netflix_link(show)
-            if netflix_link is None:
-                missingInfo += 1
-                logging.warning('netflix link is None')
-            else:
-                netflix = "[Watch on Netflix](" + netflix_link + ") | "
-        except netflix_requester.CustomError as e:
+            netflix = "[Watch on Netflix](" + netflix_link + ") | "
+        except KeyError as e:
             logging.warning(e)
             missingInfo += 1
     else:
@@ -137,11 +133,8 @@ def format_comment_reply(request, subreddit):
     if released:
         try:
             netflix_link = netflix_requester.get_netflix_link(show)
-            if netflix_link is None:
-                logging.warning('netflix link is None')
-            else:
-                netflix = "[Watch on Netflix](" + netflix_link + ") | "
-        except netflix_requester.CustomError as e:
+            netflix = "[Watch on Netflix](" + netflix_link + ") | "
+        except KeyError as e:
             logging.warning(e)
 
     plot = episode_info['Plot']
