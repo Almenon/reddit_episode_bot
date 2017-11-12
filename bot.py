@@ -158,5 +158,6 @@ def check_unread():
             except AttributeError:
                 message_link = "https://www.reddit.com/message/messages/" + message.id
                 logging.error(str(error_msg) + "\nmessage: " + str(message) + '\n\n' + message_link + str(error_msg))
-
-        message.mark_as_read()
+                
+        finally:        
+            message.mark_as_read()
