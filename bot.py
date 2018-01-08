@@ -17,7 +17,7 @@ logging.basicConfig(level="INFO",
                     )
 # todo: stop praw debug logs from going to console
 
-subreddits = ["archerfx","bojackhorseman","gravityfalls","mylittlepony","stevenuniverse"]
+subreddits = ["archerfx","bojackhorseman","gravityfalls","mylittlepony","stevenuniverse","blackmirror"]
 
 num_posts = {}
 for s in subreddits:
