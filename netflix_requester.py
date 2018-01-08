@@ -1,10 +1,11 @@
 ﻿__author__ = 'Almenon'
 
 hardcoded_links = { # No netflix API availible, so I have to hardcode :(
-    'bojack horseman': 'http://www.netflix.com/title/70300800',
-    'orange is the new black': 'http://www.netflix.com/title/70242311',
-    'my little pony': 'http://www.netflix.com/title/70234440',
-    'archerfx': 'http://www.netflix.com/title/70171942'
+    'bojack horseman': 'https://www.netflix.com/title/70300800',
+    'orange is the new black': 'https://www.netflix.com/title/70242311',
+    'my little pony': 'https://www.netflix.com/title/70234440',
+    'archerfx': 'https://www.netflix.com/title/70171942',
+    'black mirror': 'https://www.netflix.com/title/70264888'
 }
 
 english_letters = "aeiouun"
