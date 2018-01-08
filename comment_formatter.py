@@ -1,5 +1,3 @@
-__author__ = 'Caleb'
-
 import omdb_requester
 import post_parser
 import commentparser
@@ -23,6 +21,7 @@ limitedNetflixRelease = {
 spoiler1 = '[{}](/spoiler)'
 spoiler2 = '[](#s "{}")'
 spoiler3 = '[{}](#spoiler)'
+spoiler4 = '[Spoiler Alert](/s "{}")'
 
 spoilers = {
     "bojackhorseman":spoiler2,
@@ -30,7 +29,8 @@ spoilers = {
     "gravityfalls":spoiler3,
     "mylittlepony":spoiler1,
     "archerfx":spoiler1,
-    "stevenuniverse":spoiler2
+    "stevenuniverse":spoiler2,
+    "blackmirror":spoiler4
 }
 
 postReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
