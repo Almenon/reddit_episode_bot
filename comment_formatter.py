@@ -37,7 +37,7 @@ postReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
          "[**{title}**](http://www.imdb.com/title/{id}) {rating}|" \
          " {netflix}" \
          "[imdb](http://www.imdb.com/title/{id})" \
-         "\n\n> {plot}"
+         "{plot}"
 
 
 class NotEnoughInfoError(Exception):
@@ -79,10 +79,11 @@ def format_post_reply(request, subreddit):
         missingInfo += 1
 
     plot = episode_info['Plot']
-    if plot == "N/A":
+    if plot == "N/A" or plot == '':
         plot = ''
         missingInfo += 1
     else:
+        plot = "\n\n> " + plot
         if subreddit in spoilers:
             plot = spoilers[subreddit].format(plot)
 
