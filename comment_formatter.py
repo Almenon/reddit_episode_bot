@@ -83,9 +83,9 @@ def format_post_reply(request, subreddit):
         plot = ''
         missingInfo += 1
     else:
-        plot = "\n\n> " + plot
         if subreddit in spoilers:
             plot = spoilers[subreddit].format(plot)
+        plot = "\n\n> " + plot
 
     if missingInfo == 2:
         raise NotEnoughInfoError
