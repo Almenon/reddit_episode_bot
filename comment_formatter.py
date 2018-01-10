@@ -30,7 +30,8 @@ spoilers = {
     "mylittlepony":spoiler1,
     "archerfx":spoiler1,
     "stevenuniverse":spoiler2,
-    "blackmirror":spoiler4
+    "blackmirror":spoiler4,
+    "episode_bot":spoiler1
 }
 
 postReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
