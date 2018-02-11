@@ -1,7 +1,5 @@
 __author__ = 'Almenon'
 
-import praw
-# http://praw.readthedocs.org
 from time import time,sleep,localtime
 import bot
 from requests.exceptions import ConnectionError
