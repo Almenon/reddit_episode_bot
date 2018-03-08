@@ -32,7 +32,8 @@ spoilers = {
     "stevenuniverse":spoiler2,
     "blackmirror":spoiler4,
     "episode_bot":spoiler1,
-    "shield":spoiler1
+    "shield":spoiler1,
+    "preacher":spoiler2
 }
 
 hulu_links = {
