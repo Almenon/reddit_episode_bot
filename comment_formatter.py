@@ -38,7 +38,7 @@ spoilers = {
 
 hulu_links = {
     "archer":"https://www.hulu.com/archer",
-    "preacher:"https://www.hulu.com/preacher"
+    "preacher":"https://www.hulu.com/preacher"
 }
 
 reply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
