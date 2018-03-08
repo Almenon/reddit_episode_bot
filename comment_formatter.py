@@ -78,9 +78,13 @@ def format_post_reply(request, subreddit):
     watch_link = ''
     if released:
         try:
-            if show in hulu_links: link = hulu_links[show]
-            else: link = netflix_requester.get_netflix_link(show)
-            watch_link = "[Watch on Netflix](" + link + ") | "
+            if show in hulu_links:
+                link = hulu_links[show]
+                watch_site = 'Hulu'
+            else:
+                link = netflix_requester.get_netflix_link(show)
+                watch_site = 'Netflix'
+            watch_link = "[Watch on "+watch_site+"](" + link + ") | "
         except KeyError as e:
             logging.warning(e)
             missingInfo += 1
@@ -143,9 +147,13 @@ def format_comment_reply(request, subreddit):
     watch_link = ''
     if released:
         try:
-            if show in hulu_links: link = hulu_links[show]
-            else: link = netflix_requester.get_netflix_link(show)
-            watch_link = "[Watch on Netflix](" + link + ") | "
+            if show in hulu_links:
+                link = hulu_links[show]
+                watch_site = 'Hulu'
+            else:
+                link = netflix_requester.get_netflix_link(show)
+                watch_site = 'Netflix'
+            watch_link = "[Watch on "+watch_site+"](" + link + ") | "
         except KeyError as e:
             logging.warning(e)
 
