@@ -34,16 +34,21 @@ spoilers = {
     "episode_bot":spoiler1
 }
 
-postReply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
+hulu_links = {
+    "archer":"https://www.hulu.com/archer",
+    "preacher:"https://www.hulu.com/preacher"
+}
+
+reply = "#####&#009;  \n######&#009;  \n####&#009;  \n" \
          "[**{title}**](http://www.imdb.com/title/{id}) {rating}|" \
-         " {netflix}" \
+         " {watch_link}" \
          "[imdb](http://www.imdb.com/title/{id})" \
          "{plot}"
 
 
 class NotEnoughInfoError(Exception):
     """
-    Raised when post does not have essential info (plot summary or netflix link)
+    Raised when post does not have essential info (plot summary or watch link)
     Raising this exception ensures that only high quality posts survive
     """
     pass
@@ -68,11 +73,12 @@ def format_post_reply(request, subreddit):
         or subreddit in limitedNetflixRelease and int(season)+int(episode)/100 > limitedNetflixRelease[subreddit]:
         released = False
 
-    netflix = ''
+    watch_link = ''
     if released:
         try:
-            netflix_link = netflix_requester.get_netflix_link(show)
-            netflix = "[Watch on Netflix](" + netflix_link + ") | "
+            if show in hulu_links: link = hulu_links[show]
+            else: link = netflix_requester.get_netflix_link(show)
+            watch_link = "[Watch on Netflix](" + link + ") | "
         except KeyError as e:
             logging.warning(e)
             missingInfo += 1
@@ -96,11 +102,11 @@ def format_post_reply(request, subreddit):
     else:
         rating = '[{} ★] '.format(episode_info['imdbRating'])
 
-    return postReply.format(
+    return reply.format(
                 title = episode_info['Title'],
                 id = episode_info['imdbID'],
                 rating = rating,
-                netflix = netflix,
+                watch_link = watch_link,
                 plot = plot,
     )
 
@@ -132,11 +138,12 @@ def format_comment_reply(request, subreddit):
         or subreddit in limitedNetflixRelease and int(season)+int(episode)/100 > limitedNetflixRelease[subreddit]:
         released = False
 
-    netflix = ''
+    watch_link = ''
     if released:
         try:
-            netflix_link = netflix_requester.get_netflix_link(show)
-            netflix = "[Watch on Netflix](" + netflix_link + ") | "
+            if show in hulu_links: link = hulu_links[show]
+            else: link = netflix_requester.get_netflix_link(show)
+            watch_link = "[Watch on Netflix](" + link + ") | "
         except KeyError as e:
             logging.warning(e)
 
@@ -152,11 +159,11 @@ def format_comment_reply(request, subreddit):
     else:
         rating = '[{}] '.format(episode_info['imdbRating'])
 
-    return postReply.format(
+    return reply.format(
                 title = episode_info['Title'],
                 id = episode_info['imdbID'],
                 rating = rating,
-                netflix = netflix,
+                watch_link = watch_link,
                 plot = plot,
     )
 
