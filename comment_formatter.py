@@ -15,13 +15,14 @@ bot_disclaimer = "------\n" \
 # formatting for bot_disclaimer thanks to wikipediacitationbot
 
 limitedNetflixRelease = {
-    # not shows have limited release currently.  if it did i would have a value like: 'mylittlepony': 7.13,
+    # no shows have limited release currently.  if it did i would have a value like: 'mylittlepony': 7.13,
 }
 
 spoiler1 = '[{}](/spoiler)'
 spoiler2 = '[](#s "{}")'
 spoiler3 = '[{}](#spoiler)'
 spoiler4 = '[Spoiler Alert](/s "{}")'
+spoiler5 = '[spoiler](#s "{}")'
 
 spoilers = {
     "bojackhorseman":spoiler2,
@@ -33,7 +34,9 @@ spoilers = {
     "blackmirror":spoiler4,
     "episode_bot":spoiler1,
     "shield":spoiler1,
-    "preacher":spoiler2
+    "preacher":spoiler2,
+    "disenchantment":spoiler2,
+    "madmen":spoiler1
 }
 
 hulu_links = {
