@@ -5,7 +5,9 @@ hardcoded_links = { # No netflix API availible, so I have to hardcode :(
     'orange is the new black': 'https://www.netflix.com/title/70242311',
     'my little pony': 'https://www.netflix.com/title/70234440',
     'black mirror': 'https://www.netflix.com/title/70264888',
-    'agents of s.h.i.e.l.d.': 'https://www.netflix.com/title/70279852'
+    'agents of s.h.i.e.l.d.': 'https://www.netflix.com/title/70279852',
+    'madmen':'https://www.netflix.com/title/70136135',
+    'disenchantment':'https://www.netflix.com/title/80095697'
 }
 
 english_letters = "aeiouun"
