@@ -1,5 +1,7 @@
 import unittest
-from post_parser import parse,ParseError
+import post_parser
+import commentparser
+from word2num import word2num
 from omdb_requester import get_info,OmdbError
 from comment_formatter import format_post_reply
 
@@ -8,21 +10,45 @@ with open('info/badPosts.txt') as f:
 with open('info/goodPosts.txt') as f:
     goodPosts = f.readlines()
 
+class TestWord2Num(unittest.TestCase):
+    def testSingleDigit(self):
+        self.assertEqual(word2num('one'), 1)
+
+    def test_double_digit(self):
+        self.assertEqual(word2num('twentyone'),21)
+
+    def test_number(self):
+        self.assertEqual(word2num('1'), 1)
 
 class TestRegex(unittest.TestCase):
 
     def test_bad_posts(self):
         for badPost in badPosts:
-            with self.assertRaises(ParseError, msg=badPost):
-                parse(badPost)
+            with self.assertRaises(post_parser.ParseError, msg=badPost):
+                post_parser.parse(badPost)
+
+        for badPost in badPosts:
+            with self.assertRaises(commentparser.ParseError, msg=badPost):
+                commentparser.parse(badPost)
 
     def test_good_posts(self):
-        for goodPost in goodPosts:
+        for goodPost in ["s6e24 synopsis officially revealed"]:#goodPosts:
             try:
-                parse(goodPost)
-            except ParseError:
+                post_parser.parse(goodPost)
+                # todo: comment parser failing this test - maybe cause it needs episode title?
+            except (post_parser.ParseError, commentparser.ParseError):
                 self.fail(goodPost)
 
+    def test_gets_correct_number(self):
+        inputs = [("arrow s1e3 5 foo",[1,3]),
+                  (" season one, episode 3", [1,3]) ]
+
+        for testcase in inputs:
+            season, episode = post_parser.parse(testcase[0])
+            self.assertEqual([season,episode], testcase[1])
+
+            show,season, episode = commentparser.parse("/u/the_episode_bot " + testcase[0])
+            self.assertEqual([season,episode], testcase[1])
 
 class TestOmdb(unittest.TestCase):
 

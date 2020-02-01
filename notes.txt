@@ -1,0 +1,23 @@
+s1e1 - covered
+episode one season one - got this w/ code sample
+episode one season 2 <- need this
+
+X second season - episode 24
+X second season epiode 15
+X second episode of season 1
+X second episode of the second season
+
+
+
+
+/u/the_episode_bot has been on haitus for the past few months due to omdbApi going private.  I'm happy to anounce that it is now back in buisiness, due to me undergoing the tremendous financial hardship that is paying 1$ a month for an API key.  You can activate it by including the season and episode number in your post, like so:
+
+S1E11 DAE like this episode?
+
+other formats include S1[E11], Season 1 E11, e 1 s2, etc...
+#####&#009;  
+######&#009;  
+####&#009;  
+[**Downer Ending**](http://www.imdb.com/title/tt3978932) [8.8 ?] | [Watch on Netflix](http://www.netflix.com/title/70300800) | [imdb](http://www.imdb.com/title/tt3978932)
+
+> [](#s "BoJack embarks on a project in his typically gonzo style, leading to a drug-fueled revelation.")

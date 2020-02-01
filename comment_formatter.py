@@ -63,7 +63,7 @@ def format_post_reply(request, subreddit):
     episode_info = omdb_requester.get_info(show, season, episode)
 
     if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year\
-        or subreddit in limitedNetflixRelease and int(season)+int(episode)/100 > limitedNetflixRelease[subreddit]:
+        or subreddit in limitedNetflixRelease and season+episode/100 > limitedNetflixRelease[subreddit]:
         released = False
 
     netflix = ''
@@ -130,7 +130,7 @@ def format_comment_reply(request, subreddit):
             raise commentparser.ParseError
 
     if episode_info['Year'].isdigit() and int(episode_info['Year']) > datetime.now().year\
-        or subreddit in limitedNetflixRelease and int(season)+int(episode)/100 > limitedNetflixRelease[subreddit]:
+        or subreddit in limitedNetflixRelease and season+episode/100 > limitedNetflixRelease[subreddit]:
         released = False
 
     netflix = ''
