@@ -26,7 +26,7 @@ can't distinguish between different series of the same TV show.  Sorry Doctor Wh
 ### Development
 
 1. Download Python 3
-2. Install packages via pip install -r requirements.txt
+2. Install packages via `pip install -r requirements.txt`
 3. set your omdb api key as a environment variable
 4. debug unit tests in unit_tester.py to get a feel for how the code works (also see code diagram in info folder)
 5. Run timer.py
