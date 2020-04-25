@@ -1,5 +1,5 @@
 app-version==1.0.1
-decorator==4.0.9
+decorator==4.4.2
 praw==3.5.0
 pymongo==3.3.0
 requests==2.10.0
