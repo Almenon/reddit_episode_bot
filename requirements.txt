@@ -5,6 +5,6 @@ pymongo==3.3.0
 requests==2.10.0
 six==1.10.0
 tolerance==0.1.2
-update-checker==0.11
+update-checker==0.16
 praw-oauth2util==0.3.4
 NetflixRouletteAPI==5.0
