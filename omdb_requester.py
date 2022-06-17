@@ -54,7 +54,7 @@ def get_info(show='Game of thrones', season=1, episode=1):
     try:
         urlopen("http://www.imdb.com/title/" + parsed_json['imdbID']) # verify imdb is correct
     except error.URLError as e:
-        raise OmdbError("imdb link is incorrect: " + e.msg + ' ' + e.code)
+        raise OmdbError("imdb link is incorrect: " + e.msg + ' ' + str(e.code))
     return parsed_json
 
 
