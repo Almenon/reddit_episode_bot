@@ -24,6 +24,6 @@ heroku ps to inspect worker status
 heroku run bash to access a bash instance in the server
 
 Setting up a mongo database:
-install Mongolab addon
+Setup a mongoDB database
 Create necesary data
 in cmd: heroku config:set mongodb_uri=youruri
