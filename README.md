@@ -1,4 +1,4 @@
-# Reddit episode bot [![Build Status](https://travis-ci.org/Almenon/reddit_episode_bot.svg?branch=master)](https://travis-ci.org/Almenon/reddit_episode_bot)
+# Reddit episode bot ![Tests](https://github.com/almenon/reddit_episode_bot/actions/workflows/python-app.yml/badge.svg)
 
 A script that provides info and links to TV episodes.  It can automatically create a comment like below:
 
