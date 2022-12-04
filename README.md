@@ -8,7 +8,7 @@ A script that provides info and links to TV episodes.  It can automatically crea
 
 > *(Summary text is covered by spoilertag until mouseover)*
 
-It was archived when Heroku stopped offering free server resources. Feel free to fork this project if desired, the code is pretty simple so it should work with just a bit of touch-up.
+This repo was archived when Heroku stopped offering free server resources. Feel free to fork this project if desired, the code is pretty simple so it should work with just a bit of touch-up.
 
 ### How to activate
 
